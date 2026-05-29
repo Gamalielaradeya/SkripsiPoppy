@@ -18,9 +18,17 @@ class DeviceController extends Controller
 
     public function show(string $id): View
     {
+        $device = Device::query()->find($id);
+
         return view('devices.show', [
-            'device' => Device::query()->find($id),
+            'device' => $device,
             'id' => $id,
+            'latestTelemetry' => $device?->telemetries()->latest('reported_at')->first(),
+            'latestNetworkCheck' => $device?->networkChecks()->latest('checked_at')->first(),
+            'latestAccurateProcess' => $device?->accurateProcessSnapshots()->latest('checked_at')->first(),
+            'deviceAlerts' => $device?->alerts()->latest('detected_at')->limit(5)->get() ?? collect(),
+            'deviceIncidents' => $device?->incidents()->latest('detected_at')->limit(5)->get() ?? collect(),
+            'deviceRemoteActions' => $device?->remoteActions()->latest('requested_at')->limit(5)->get() ?? collect(),
         ]);
     }
 }

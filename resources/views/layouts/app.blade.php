@@ -9,13 +9,21 @@
 </head>
 <body class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
     <div x-data="{ sidebarOpen: false }" class="min-h-screen lg:flex">
+        <div
+            x-cloak
+            x-show="sidebarOpen"
+            x-transition.opacity
+            x-on:click="sidebarOpen = false"
+            class="fixed inset-0 z-30 bg-slate-950/40 lg:hidden"
+        ></div>
+
         <x-sidebar />
 
         <div class="flex min-w-0 flex-1 flex-col">
             <x-topbar />
 
-            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-                <div class="mx-auto max-w-7xl space-y-6">
+            <main class="flex-1 px-4 py-5 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-7xl space-y-5">
                     <x-page-header
                         :title="trim($__env->yieldContent('title'))"
                         :description="trim($__env->yieldContent('description'))"

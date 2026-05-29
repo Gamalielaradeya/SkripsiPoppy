@@ -10,7 +10,7 @@ class AlertController extends Controller
     public function index(): View
     {
         return view('alerts.index', [
-            'alerts' => Alert::query()->latest('detected_at')->paginate(15),
+            'alerts' => Alert::query()->with('evidences')->latest('detected_at')->paginate(15),
         ]);
     }
 

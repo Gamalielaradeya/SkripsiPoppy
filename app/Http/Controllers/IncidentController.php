@@ -10,7 +10,7 @@ class IncidentController extends Controller
     public function index(): View
     {
         return view('incidents.index', [
-            'incidents' => Incident::query()->latest('detected_at')->paginate(15),
+            'incidents' => Incident::query()->with('alerts')->latest('detected_at')->paginate(15),
         ]);
     }
 

@@ -20,6 +20,24 @@ class DashboardController extends Controller
             'openAlerts' => Alert::query()->where('status', 'open')->count(),
             'auditEventsToday' => AccurateAuditEvent::query()->whereDate('activity_time', now())->count(),
             'openIncidents' => Incident::query()->where('status', 'open')->count(),
+            'latestDevices' => Device::query()
+                ->orderByRaw('COALESCE(last_seen_at, registered_at, created_at) DESC')
+                ->limit(8)
+                ->get(),
+            'latestAuditEvents' => AccurateAuditEvent::query()
+                ->latest('activity_time')
+                ->limit(6)
+                ->get(),
+            'latestIncidents' => Incident::query()
+                ->where('status', 'open')
+                ->latest('detected_at')
+                ->limit(5)
+                ->get(),
+            'latestAlerts' => Alert::query()
+                ->where('status', 'open')
+                ->latest('detected_at')
+                ->limit(5)
+                ->get(),
         ]);
     }
 }

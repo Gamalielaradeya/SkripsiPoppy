@@ -10,7 +10,7 @@ class RemoteActionController extends Controller
     public function index(): View
     {
         return view('remote-actions.index', [
-            'remoteActions' => RemoteAction::query()->with('device')->latest('requested_at')->paginate(15),
+            'remoteActions' => RemoteAction::query()->with(['device', 'requester'])->latest('requested_at')->paginate(15),
         ]);
     }
 

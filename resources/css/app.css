@@ -1,3 +1,4 @@
+/* Hallmark - UI foundation pass: technical workbench | tone: utilitarian | anchor hue: slate/sky */
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -12,4 +13,9 @@
 
 [x-cloak] {
     display: none !important;
+}
+
+html,
+body {
+    overflow-x: clip;
 }
