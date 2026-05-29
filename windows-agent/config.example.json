@@ -1,0 +1,7 @@
+{
+  "api_base_url": "http://127.0.0.1:8000/api/agent",
+  "agent_version": "1.0.0",
+  "runtime_path": "C:\\ProgramData\\CentralizedLogMonitoring",
+  "rdp_port": 3389,
+  "request_timeout_seconds": 15
+}

@@ -76,11 +76,12 @@ Completed:
 - Milestone 1: Laravel Foundation & Auth
 - Milestone 2: Database Foundation
 - Milestone 3: Agent Registration API
-
-Next:
 - Milestone 4: UI Foundation + Hallmark Design Pass
 
-Do not skip ahead to Windows Agent, RSyslog parser, Firebird sync, Telegram, or remote restart before completing and committing Milestone 4.
+Next:
+- Milestone 5: Windows Agent PowerShell MVP
+
+Do not skip ahead to telemetry, RSyslog parser, Firebird sync, Telegram, or remote restart before completing and committing Milestone 5.
 
 ---
 
