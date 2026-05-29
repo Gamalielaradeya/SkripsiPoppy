@@ -65,9 +65,19 @@ class Device extends Model
         return $this->hasMany(NetworkCheck::class);
     }
 
+    public function latestNetworkCheck(): HasOne
+    {
+        return $this->hasOne(NetworkCheck::class)->latestOfMany('checked_at');
+    }
+
     public function accurateProcessSnapshots(): HasMany
     {
         return $this->hasMany(AccurateProcessSnapshot::class);
+    }
+
+    public function latestAccurateProcessSnapshot(): HasOne
+    {
+        return $this->hasOne(AccurateProcessSnapshot::class)->latestOfMany('checked_at');
     }
 
     public function logs(): HasMany

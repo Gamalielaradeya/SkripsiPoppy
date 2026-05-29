@@ -52,6 +52,11 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-700">
                             @foreach ($latestDevices as $device)
+                                @php
+                                    $networkStatus = $device->latestNetworkCheck?->tcp_status ?? $device->firebird_connection_status ?? 'unknown';
+                                    $networkLatency = $device->latestNetworkCheck?->tcp_latency_ms;
+                                    $accurateProcessStatus = $device->latestAccurateProcessSnapshot?->process_status ?? $device->accurate_status ?? 'unknown';
+                                @endphp
                                 <tr>
                                     <td class="px-3 py-3">
                                         <div class="font-medium text-slate-950">{{ $device->display_name }}</div>
@@ -62,8 +67,11 @@
                                     <td class="px-3 py-3">{{ $device->latestTelemetry?->ram_usage_percent !== null ? number_format($device->latestTelemetry->ram_usage_percent, 1).'%' : '-' }}</td>
                                     <td class="px-3 py-3">{{ $device->latestTelemetry?->disk_usage_percent !== null ? number_format($device->latestTelemetry->disk_usage_percent, 1).'%' : '-' }}</td>
                                     <td class="px-3 py-3 font-mono text-xs">{{ $device->ip_zerotier ?? '-' }}</td>
-                                    <td class="px-3 py-3"><x-status-badge :status="$device->firebird_connection_status" /></td>
-                                    <td class="px-3 py-3"><x-status-badge :status="$device->accurate_status" /></td>
+                                    <td class="px-3 py-3">
+                                        <x-status-badge :status="$networkStatus" />
+                                        <div class="mt-1 text-xs text-slate-500">{{ $networkLatency !== null ? number_format($networkLatency, 0).' ms' : '-' }}</div>
+                                    </td>
+                                    <td class="px-3 py-3"><x-status-badge :status="$accurateProcessStatus" /></td>
                                     <td class="px-3 py-3"><x-status-badge :status="$device->status" /></td>
                                     <td class="px-3 py-3">
                                         <x-action-button :href="route('devices.show', $device)" variant="secondary">Detail</x-action-button>

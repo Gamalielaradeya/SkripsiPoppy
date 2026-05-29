@@ -1,6 +1,6 @@
 # Windows Agent PowerShell MVP
 
-PowerShell agent for Centralized Log Monitoring Dashboard. Milestone 5 registered real Windows devices and sent heartbeat metadata. Milestone 6 adds real CPU, RAM, and disk telemetry to the heartbeat API payload. Milestone 7 adds optional structured syslog output to RSyslog for Advanced Logs.
+PowerShell agent for Centralized Log Monitoring Dashboard. Milestone 5 registered real Windows devices and sent heartbeat metadata. Milestone 6 adds real CPU, RAM, and disk telemetry to the heartbeat API payload. Milestone 7 adds optional structured syslog output to RSyslog for Advanced Logs. Milestone 8 adds Firebird TCP connectivity and Accurate process checks.
 
 ## Scope
 
@@ -16,12 +16,15 @@ Implemented:
 - RAM usage percent from Windows OS memory counters
 - Disk usage percent for the configured drive, default `C:`
 - Optional structured syslog messages for `device-monitor`, `perf-monitor`, and `heartbeat-monitor`
+- Optional Firebird TCP connectivity check to configured host/port, default port `3051`
+- Optional Accurate process detection for configured executable name, default `accurate.exe`
+- Optional structured syslog messages for `network-monitor` and `accurate-process-monitor`
 - `-DryRun` mode
 
 Not implemented in this milestone:
 
-- Firebird connectivity checks
-- Accurate process detection
+- Firebird database login or query
+- Accurate Firebird Audit Reader
 - Telegram notifications
 - Alert detection
 - Command polling
@@ -67,6 +70,12 @@ Copy-Item "C:\ProgramData\CentralizedLogMonitoring\agent\config.example.json" "C
   "runtime_path": "C:\\ProgramData\\CentralizedLogMonitoring",
   "monitored_drive": "C:",
   "rdp_port": 3389,
+  "firebird_check_enabled": false,
+  "firebird_host": "",
+  "firebird_port": 3051,
+  "firebird_timeout_seconds": 3,
+  "accurate_process_check_enabled": false,
+  "accurate_process_name": "accurate.exe",
   "request_timeout_seconds": 15,
   "syslog_enabled": false,
   "syslog_host": "10.147.20.5",
@@ -79,6 +88,10 @@ Copy-Item "C:\ProgramData\CentralizedLogMonitoring\agent\config.example.json" "C
 Use the VPS ZeroTier IP or production HTTPS URL when available.
 
 `monitored_drive` controls which Windows logical disk is reported as `disk_usage_percent`. Use `C:` unless the Accurate workstation stores its main working data on another local drive.
+
+Set `firebird_check_enabled` to `true` only after `firebird_host` is set to the Firebird server IP/host reachable from the Windows client, usually the VPS ZeroTier IP. The agent only performs a TCP connect test to `firebird_host:firebird_port`; it does not log in to Firebird, query the database, or read Accurate audit tables.
+
+Set `accurate_process_check_enabled` to `true` to detect the configured Windows process. Owner and path may be null if Windows permissions block access.
 
 Set `syslog_enabled` to `true` only after the VPS RSyslog receiver is ready. Use the VPS ZeroTier IP for `syslog_host`. The PowerShell MVP supports UDP syslog only, so keep `syslog_protocol` as `udp`.
 
@@ -102,9 +115,13 @@ ram_usage_percent
 disk_usage_percent
 uptime_seconds
 last_boot_at
+firebird_check
+accurate_process
 ```
 
 If Windows cannot provide a metric, the agent sends `null` for that field. The Laravel API stores the null and does not invent `0` or random values.
+
+If Firebird check is disabled or `firebird_host` is empty, the agent skips that check and does not fail heartbeat. If Accurate process check is disabled, the agent skips that check and does not fail heartbeat.
 
 When `syslog_enabled=true`, dry run also prints the structured syslog lines and does not send them:
 
@@ -112,6 +129,8 @@ When `syslog_enabled=true`, dry run also prints the structured syslog lines and 
 device-monitor: event_type=device_heartbeat agent_id=... hostname=... status=online
 perf-monitor: event_type=performance_status agent_id=... cpu_usage_percent=...
 heartbeat-monitor: event_type=heartbeat_status agent_id=... uptime_seconds=...
+network-monitor: event_type=firebird_connectivity agent_id=... target_host=... target_port=3051 tcp_status=connected latency_ms=...
+accurate-process-monitor: event_type=accurate_process agent_id=... process_name=accurate.exe process_status=running
 ```
 
 ## Real Run
@@ -200,6 +219,10 @@ sudo tail -n 20 /var/log/remote/all.log
 php artisan rsyslog:parse
 ```
 
+9. If Firebird check is enabled, confirm the heartbeat payload includes `firebird_check.target_host`, `firebird_check.target_port`, `firebird_check.tcp_status`, and `firebird_check.tcp_latency_ms` when connected.
+
+10. If Accurate process check is enabled, confirm the heartbeat payload includes `accurate_process.process_status` and, when available, PID, owner, and path.
+
 ## Troubleshooting
 
 - If registration succeeds but `agent-token.txt` is deleted, the server may not return another token for the same `agent_id`. Regenerate server credential or restore the local token file.
@@ -207,3 +230,6 @@ php artisan rsyslog:parse
 - If RDP status is `unavailable`, check `TermService`, Windows firewall, and whether port `3389` is listening.
 - If heartbeat fails with unauthorized, verify that `agent-token.txt` belongs to the same `agent_id.txt`.
 - If syslog sending fails, verify ZeroTier connectivity, `syslog_host`, firewall rules, and that RSyslog listens on `5514/udp`.
+- If Firebird check is skipped, verify `firebird_check_enabled=true` and `firebird_host` is not empty.
+- If Firebird status is `timeout` or `failed`, verify ZeroTier, firewall, and Firebird port access from the Windows client.
+- If Accurate owner or path is empty, run PowerShell with enough permission or accept null fields; the agent does not fail heartbeat for access denied process metadata.

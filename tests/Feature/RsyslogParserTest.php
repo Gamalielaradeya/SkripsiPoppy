@@ -112,6 +112,12 @@ class RsyslogParserTest extends TestCase
             'monitored_drive' => 'C:',
             'rdp_port' => 3389,
             'request_timeout_seconds' => 1,
+            'firebird_check_enabled' => true,
+            'firebird_host' => '127.0.0.1',
+            'firebird_port' => 1,
+            'firebird_timeout_seconds' => 1,
+            'accurate_process_check_enabled' => true,
+            'accurate_process_name' => 'accurate.exe',
             'syslog_enabled' => true,
             'syslog_host' => '127.0.0.1',
             'syslog_port' => 5514,
@@ -131,6 +137,8 @@ class RsyslogParserTest extends TestCase
         $this->assertStringContainsString('device-monitor: event_type=device_heartbeat', $text);
         $this->assertStringContainsString('perf-monitor: event_type=performance_status', $text);
         $this->assertStringContainsString('heartbeat-monitor: event_type=heartbeat_status', $text);
+        $this->assertStringContainsString('network-monitor: event_type=firebird_connectivity', $text);
+        $this->assertStringContainsString('accurate-process-monitor: event_type=accurate_process', $text);
         $this->assertStringNotContainsString('agent-token', $text);
     }
 

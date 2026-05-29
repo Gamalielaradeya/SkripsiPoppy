@@ -337,6 +337,182 @@ function Get-DiskUsagePercent {
     }
 }
 
+function Test-TcpConnectivity {
+    param(
+        [string]$HostName,
+        [int]$Port,
+        [int]$TimeoutSeconds
+    )
+
+    $client = New-Object System.Net.Sockets.TcpClient
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $asyncResult = $null
+
+    try {
+        $asyncResult = $client.BeginConnect($HostName, $Port, $null, $null)
+        $connected = $asyncResult.AsyncWaitHandle.WaitOne([TimeSpan]::FromSeconds($TimeoutSeconds))
+        $stopwatch.Stop()
+
+        if (-not $connected) {
+            $client.Close()
+            return [pscustomobject]@{
+                TcpStatus = 'timeout'
+                LatencyMs = $null
+                FailureReason = "TCP connect timed out after ${TimeoutSeconds}s"
+            }
+        }
+
+        try {
+            $client.EndConnect($asyncResult)
+        } catch {
+            $message = $_.Exception.Message
+            $status = 'failed'
+            if ($message -match 'refused|actively refused') {
+                $status = 'refused'
+            }
+
+            return [pscustomobject]@{
+                TcpStatus = $status
+                LatencyMs = $null
+                FailureReason = $message
+            }
+        }
+
+        return [pscustomobject]@{
+            TcpStatus = 'connected'
+            LatencyMs = [math]::Round($stopwatch.Elapsed.TotalMilliseconds, 0)
+            FailureReason = $null
+        }
+    } catch {
+        $stopwatch.Stop()
+        return [pscustomobject]@{
+            TcpStatus = 'failed'
+            LatencyMs = $null
+            FailureReason = $_.Exception.Message
+        }
+    } finally {
+        if ($asyncResult -and $asyncResult.AsyncWaitHandle) {
+            $asyncResult.AsyncWaitHandle.Close()
+        }
+
+        $client.Close()
+    }
+}
+
+function Get-FirebirdConnectivityCheck {
+    param([object]$Config)
+
+    $enabled = [bool](Get-ConfigValue -Config $Config -Name 'firebird_check_enabled' -DefaultValue $false)
+    if (-not $enabled) {
+        return $null
+    }
+
+    $hostName = [string](Get-ConfigValue -Config $Config -Name 'firebird_host')
+    if ([string]::IsNullOrWhiteSpace($hostName)) {
+        return $null
+    }
+
+    $port = [int](Get-ConfigValue -Config $Config -Name 'firebird_port' -DefaultValue 3051)
+    $timeoutSeconds = [int](Get-ConfigValue -Config $Config -Name 'firebird_timeout_seconds' -DefaultValue 3)
+    if ($timeoutSeconds -lt 1) {
+        $timeoutSeconds = 1
+    }
+
+    $result = Test-TcpConnectivity -HostName $hostName -Port $port -TimeoutSeconds $timeoutSeconds
+    $overallStatus = 'unknown'
+    if ($result.TcpStatus -eq 'connected') {
+        $overallStatus = 'normal'
+    } elseif ($result.TcpStatus -in @('timeout', 'refused', 'failed')) {
+        $overallStatus = 'error'
+    }
+
+    return [ordered]@{
+        target_type = 'firebird'
+        target_host = $hostName
+        target_port = $port
+        ping_status = 'unknown'
+        tcp_status = $result.TcpStatus
+        tcp_latency_ms = $result.LatencyMs
+        latency_ms = $result.LatencyMs
+        failure_reason = $result.FailureReason
+        status = $overallStatus
+        checked_at = (Get-Date).ToUniversalTime().ToString('o')
+    }
+}
+
+function Get-ProcessOwnerSafe {
+    param([object]$Process)
+
+    try {
+        $owner = Invoke-CimMethod -InputObject $Process -MethodName GetOwner -ErrorAction Stop
+        if ($owner.ReturnValue -eq 0 -and -not [string]::IsNullOrWhiteSpace($owner.User)) {
+            if (-not [string]::IsNullOrWhiteSpace($owner.Domain)) {
+                return "$($owner.Domain)\$($owner.User)"
+            }
+
+            return $owner.User
+        }
+    } catch {
+        return $null
+    }
+
+    return $null
+}
+
+function Get-AccurateProcessCheck {
+    param([object]$Config)
+
+    $enabled = [bool](Get-ConfigValue -Config $Config -Name 'accurate_process_check_enabled' -DefaultValue $false)
+    if (-not $enabled) {
+        return $null
+    }
+
+    $processName = [string](Get-ConfigValue -Config $Config -Name 'accurate_process_name' -DefaultValue 'accurate.exe')
+    if ([string]::IsNullOrWhiteSpace($processName)) {
+        return $null
+    }
+
+    try {
+        $process = Get-CimInstance -ClassName Win32_Process -ErrorAction Stop |
+            Where-Object { $_.Name -ieq $processName } |
+            Sort-Object -Property CreationDate -Descending |
+            Select-Object -First 1
+    } catch {
+        $process = $null
+    }
+
+    if (-not $process) {
+        return [ordered]@{
+            process_name = $processName
+            process_status = 'not_running'
+            process_pid = $null
+            process_owner = $null
+            process_path = $null
+            process_started_at = $null
+            checked_at = (Get-Date).ToUniversalTime().ToString('o')
+        }
+    }
+
+    $startedAt = $null
+    try {
+        if ($process.CreationDate) {
+            $startedAt = ([Management.ManagementDateTimeConverter]::ToDateTime($process.CreationDate)).ToUniversalTime().ToString('o')
+        }
+    } catch {
+        $startedAt = $null
+    }
+
+    return [ordered]@{
+        process_name = $process.Name
+        process_status = 'running'
+        process_pid = $process.ProcessId
+        process_owner = Get-ProcessOwnerSafe -Process $process
+        process_path = $process.ExecutablePath
+        process_started_at = $startedAt
+        checked_at = (Get-Date).ToUniversalTime().ToString('o')
+    }
+}
+
 function New-AgentPayload {
     param(
         [string]$AgentId,
@@ -356,7 +532,7 @@ function New-AgentPayload {
     $rdpPort = [int](Get-ConfigValue -Config $Config -Name 'rdp_port' -DefaultValue 3389)
     $monitoredDrive = [string](Get-ConfigValue -Config $Config -Name 'monitored_drive' -DefaultValue $env:SystemDrive)
 
-    return [ordered]@{
+    $payload = [ordered]@{
         agent_id = $AgentId
         hostname = Get-HostName
         windows_user = Get-WindowsUser
@@ -372,6 +548,18 @@ function New-AgentPayload {
         rdp_status = Get-RdpStatus -Port $rdpPort
         agent_version = [string](Get-ConfigValue -Config $Config -Name 'agent_version' -DefaultValue '1.0.0')
     }
+
+    $firebirdCheck = Get-FirebirdConnectivityCheck -Config $Config
+    if ($null -ne $firebirdCheck) {
+        $payload['firebird_check'] = $firebirdCheck
+    }
+
+    $accurateProcess = Get-AccurateProcessCheck -Config $Config
+    if ($null -ne $accurateProcess) {
+        $payload['accurate_process'] = $accurateProcess
+    }
+
+    return $payload
 }
 
 function ConvertTo-AgentJson {
@@ -439,10 +627,31 @@ function ConvertTo-KeyValueLine {
 function New-SyslogMessage {
     param(
         [string]$Tag,
-        [hashtable]$Fields
+        [System.Collections.IDictionary]$Fields
     )
 
     return "${Tag}: $(ConvertTo-KeyValueLine -Fields $Fields)"
+}
+
+function Get-ObjectField {
+    param(
+        [object]$Object,
+        [string]$Name
+    )
+
+    if ($null -eq $Object) {
+        return $null
+    }
+
+    if ($Object -is [System.Collections.IDictionary] -and $Object.Contains($Name)) {
+        return $Object[$Name]
+    }
+
+    if ($Object.PSObject.Properties.Name -contains $Name) {
+        return $Object.$Name
+    }
+
+    return $null
 }
 
 function New-AgentSyslogMessages {
@@ -487,11 +696,51 @@ function New-AgentSyslogMessages {
         status = 'online'
     }
 
-    return @(
-        New-SyslogMessage -Tag 'device-monitor' -Fields $deviceFields
-        New-SyslogMessage -Tag 'perf-monitor' -Fields $perfFields
-        New-SyslogMessage -Tag 'heartbeat-monitor' -Fields $heartbeatFields
-    )
+    $messages = New-Object System.Collections.Generic.List[string]
+    $messages.Add((New-SyslogMessage -Tag 'device-monitor' -Fields $deviceFields))
+    $messages.Add((New-SyslogMessage -Tag 'perf-monitor' -Fields $perfFields))
+    $messages.Add((New-SyslogMessage -Tag 'heartbeat-monitor' -Fields $heartbeatFields))
+
+    $firebirdCheck = Get-ObjectField -Object $Payload -Name 'firebird_check'
+    if ($null -ne $firebirdCheck) {
+        $networkFields = [ordered]@{
+            event_type = 'firebird_connectivity'
+            agent_id = $Payload.agent_id
+            hostname = $Payload.hostname
+            target_type = Get-ObjectField -Object $firebirdCheck -Name 'target_type'
+            target_host = Get-ObjectField -Object $firebirdCheck -Name 'target_host'
+            target_port = Get-ObjectField -Object $firebirdCheck -Name 'target_port'
+            ping_status = Get-ObjectField -Object $firebirdCheck -Name 'ping_status'
+            tcp_status = Get-ObjectField -Object $firebirdCheck -Name 'tcp_status'
+            latency_ms = Get-ObjectField -Object $firebirdCheck -Name 'latency_ms'
+            failure_reason = Get-ObjectField -Object $firebirdCheck -Name 'failure_reason'
+            app_name = $appName
+            status = Get-ObjectField -Object $firebirdCheck -Name 'status'
+        }
+
+        $messages.Add((New-SyslogMessage -Tag 'network-monitor' -Fields $networkFields))
+    }
+
+    $accurateProcess = Get-ObjectField -Object $Payload -Name 'accurate_process'
+    if ($null -ne $accurateProcess) {
+        $accurateFields = [ordered]@{
+            event_type = 'accurate_process'
+            agent_id = $Payload.agent_id
+            hostname = $Payload.hostname
+            windows_user = $Payload.windows_user
+            process_name = Get-ObjectField -Object $accurateProcess -Name 'process_name'
+            process_status = Get-ObjectField -Object $accurateProcess -Name 'process_status'
+            process_pid = Get-ObjectField -Object $accurateProcess -Name 'process_pid'
+            process_owner = Get-ObjectField -Object $accurateProcess -Name 'process_owner'
+            process_path = Get-ObjectField -Object $accurateProcess -Name 'process_path'
+            app_name = $appName
+            status = if ((Get-ObjectField -Object $accurateProcess -Name 'process_status') -eq 'running') { 'normal' } else { 'warning' }
+        }
+
+        $messages.Add((New-SyslogMessage -Tag 'accurate-process-monitor' -Fields $accurateFields))
+    }
+
+    return $messages.ToArray()
 }
 
 function Send-SyslogUdp {

@@ -79,12 +79,13 @@ Completed:
 - Milestone 4: UI Foundation + Hallmark Design Pass
 - Milestone 5: Windows Agent PowerShell MVP
 - Milestone 6: Device Telemetry Real
+- Milestone 7: RSyslog Structured Log Pipeline
+- Milestone 8: Firebird Connectivity + Accurate Process Monitoring
 
 Next:
-- Milestone 7: RSyslog Structured Log Pipeline
+- Milestone 9: Accurate Firebird Audit Reader
 
-Do not skip ahead to Firebird sync, Telegram, or remote restart before completing and committing Milestone 7.
-
+Do not skip ahead to Telegram, remote restart, or deployment before completing and committing Milestone 9.
 ---
 
 ## Locked Implementation Milestones

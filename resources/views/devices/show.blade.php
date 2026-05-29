@@ -10,6 +10,10 @@
             message="Tidak ada device real dengan ID {{ $id }}. Device harus dibuat dari identitas agent_id, bukan hostname."
         />
     @else
+        @php
+            $networkStatus = $latestNetworkCheck?->tcp_status ?? $device->firebird_connection_status ?? 'unknown';
+            $accurateProcessStatus = $latestAccurateProcess?->process_status ?? $device->accurate_status ?? 'unknown';
+        @endphp
         <div class="grid gap-5 xl:grid-cols-3">
             <div class="space-y-5 xl:col-span-2">
                 <x-info-panel title="Identity" description="Identitas device memakai agent_id sebagai primary identity. Hostname hanya metadata Windows.">
@@ -54,7 +58,19 @@
                             </div>
                             <div class="flex items-center justify-between gap-4">
                                 <dt class="text-slate-500">Firebird</dt>
-                                <dd><x-status-badge :status="$device->firebird_connection_status" /></dd>
+                                <dd><x-status-badge :status="$networkStatus" /></dd>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <dt class="text-slate-500">Firebird Host</dt>
+                                <dd class="font-mono text-xs text-slate-900">{{ $latestNetworkCheck?->target_host ?? '-' }}</dd>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <dt class="text-slate-500">Firebird Port</dt>
+                                <dd class="font-mono text-xs text-slate-900">{{ $latestNetworkCheck?->target_port ?? '-' }}</dd>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <dt class="text-slate-500">Firebird Latency</dt>
+                                <dd class="font-medium text-slate-900">{{ $latestNetworkCheck?->tcp_latency_ms !== null ? number_format($latestNetworkCheck->tcp_latency_ms, 0).' ms' : '-' }}</dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
                                 <dt class="text-slate-500">RDP</dt>
@@ -101,9 +117,11 @@
                     <div class="flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <div class="text-sm font-medium text-slate-950">{{ $latestAccurateProcess?->process_name ?? 'accurate.exe' }}</div>
+                            <div class="mt-1 text-xs text-slate-500">PID: {{ $latestAccurateProcess?->process_pid ?? '-' }}</div>
                             <div class="mt-1 text-xs text-slate-500">Owner: {{ $latestAccurateProcess?->process_owner ?? '-' }}</div>
+                            <div class="mt-1 break-all text-xs text-slate-500">Path: {{ $latestAccurateProcess?->process_path ?? '-' }}</div>
                         </div>
-                        <x-status-badge :status="$device->accurate_status" />
+                        <x-status-badge :status="$accurateProcessStatus" />
                     </div>
                     <div class="mt-4 rounded-md bg-slate-50 p-3 text-xs text-slate-600">
                         Checked at: {{ $latestAccurateProcess?->checked_at?->diffForHumans() ?? 'Belum ada snapshot proses Accurate.' }}

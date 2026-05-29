@@ -21,7 +21,7 @@ class DashboardController extends Controller
             'auditEventsToday' => AccurateAuditEvent::query()->whereDate('activity_time', now())->count(),
             'openIncidents' => Incident::query()->where('status', 'open')->count(),
             'latestDevices' => Device::query()
-                ->with('latestTelemetry')
+                ->with(['latestTelemetry', 'latestNetworkCheck', 'latestAccurateProcessSnapshot'])
                 ->orderByRaw('COALESCE(last_seen_at, registered_at, created_at) DESC')
                 ->limit(8)
                 ->get(),

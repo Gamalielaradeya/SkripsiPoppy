@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\AccurateProcessSnapshot;
 use App\Models\AgentCredential;
 use App\Models\Device;
 use App\Models\DeviceTelemetry;
+use App\Models\NetworkCheck;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -186,6 +188,128 @@ class AgentApiTest extends TestCase
         $this->assertNull($telemetry->disk_usage_percent);
         $this->assertNull($telemetry->uptime_seconds);
         $this->assertNull($telemetry->last_boot_at);
+    }
+
+    public function test_heartbeat_stores_firebird_network_check_when_submitted(): void
+    {
+        [$device, $token] = $this->registeredDeviceWithToken('agent-api-test-net-001', 'HOST-NET-001');
+
+        $this->postJson('/api/agent/heartbeat', [
+            'agent_id' => $device->agent_id,
+            'hostname' => 'HOST-NET-001',
+            'firebird_check' => [
+                'target_type' => 'firebird',
+                'target_host' => '10.147.20.5',
+                'target_port' => 3051,
+                'ping_status' => 'unknown',
+                'tcp_status' => 'connected',
+                'tcp_latency_ms' => 24,
+                'status' => 'normal',
+                'checked_at' => '2026-05-29T02:10:00+07:00',
+            ],
+        ], [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertOk()
+            ->assertJsonPath('status', 'heartbeat_received');
+
+        $check = NetworkCheck::query()->where('device_id', $device->id)->firstOrFail();
+
+        $this->assertSame('firebird', $check->target_type);
+        $this->assertSame('10.147.20.5', $check->target_host);
+        $this->assertSame(3051, $check->target_port);
+        $this->assertSame('connected', $check->tcp_status);
+        $this->assertSame(24.0, $check->tcp_latency_ms);
+        $this->assertSame('connected', $device->refresh()->firebird_connection_status);
+        $this->assertSame('connected', $check->raw_payload['tcp_status']);
+    }
+
+    public function test_heartbeat_stores_accurate_process_snapshot_when_submitted(): void
+    {
+        [$device, $token] = $this->registeredDeviceWithToken('agent-api-test-proc-001', 'HOST-PROC-001');
+
+        $this->postJson('/api/agent/heartbeat', [
+            'agent_id' => $device->agent_id,
+            'hostname' => 'HOST-PROC-001',
+            'accurate_process' => [
+                'process_name' => 'accurate.exe',
+                'process_status' => 'running',
+                'process_pid' => 5420,
+                'process_owner' => 'HOST-PROC-001\User',
+                'process_path' => 'C:\\Program Files (x86)\\CPSSoft\\ACCURATE5 Enterprise\\accurate.exe',
+                'process_started_at' => '2026-05-29T02:05:00+07:00',
+                'checked_at' => '2026-05-29T02:10:00+07:00',
+            ],
+        ], [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertOk();
+
+        $snapshot = AccurateProcessSnapshot::query()->where('device_id', $device->id)->firstOrFail();
+
+        $this->assertSame('accurate.exe', $snapshot->process_name);
+        $this->assertSame('running', $snapshot->process_status);
+        $this->assertSame(5420, $snapshot->process_pid);
+        $this->assertSame('HOST-PROC-001\User', $snapshot->process_owner);
+        $this->assertSame('running', $device->refresh()->accurate_status);
+        $this->assertSame('running', $snapshot->raw_payload['process_status']);
+    }
+
+    public function test_missing_or_empty_check_payloads_do_not_create_fake_rows(): void
+    {
+        [$device, $token] = $this->registeredDeviceWithToken('agent-api-test-check-empty-001', 'HOST-EMPTY-001');
+
+        $this->postJson('/api/agent/heartbeat', [
+            'agent_id' => $device->agent_id,
+            'hostname' => 'HOST-EMPTY-001',
+            'firebird_check' => [],
+            'accurate_process' => [],
+        ], [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertOk();
+
+        $this->assertDatabaseMissing('network_checks', [
+            'device_id' => $device->id,
+        ]);
+        $this->assertDatabaseMissing('accurate_process_snapshots', [
+            'device_id' => $device->id,
+        ]);
+
+        $device->refresh();
+        $this->assertSame('unknown', $device->firebird_connection_status);
+        $this->assertSame('unknown', $device->accurate_status);
+    }
+
+    public function test_heartbeat_rejects_invalid_firebird_and_process_check_values(): void
+    {
+        [$device, $token] = $this->registeredDeviceWithToken('agent-api-test-check-invalid-001', 'HOST-INVALID-001');
+
+        $this->postJson('/api/agent/heartbeat', [
+            'agent_id' => $device->agent_id,
+            'firebird_check' => [
+                'target_port' => 70000,
+                'tcp_latency_ms' => -1,
+                'tcp_status' => 'maybe',
+            ],
+            'accurate_process' => [
+                'process_status' => 'sleeping',
+                'process_pid' => 0,
+            ],
+        ], [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'firebird_check.target_port',
+                'firebird_check.tcp_latency_ms',
+                'firebird_check.tcp_status',
+                'accurate_process.process_status',
+                'accurate_process.process_pid',
+            ]);
+
+        $this->assertDatabaseMissing('network_checks', [
+            'device_id' => $device->id,
+        ]);
+        $this->assertDatabaseMissing('accurate_process_snapshots', [
+            'device_id' => $device->id,
+        ]);
     }
 
     public function test_heartbeat_rejects_telemetry_values_outside_zero_to_one_hundred(): void

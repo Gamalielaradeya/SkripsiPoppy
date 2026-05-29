@@ -52,6 +52,8 @@
                             <th class="px-4 py-3">CPU</th>
                             <th class="px-4 py-3">RAM</th>
                             <th class="px-4 py-3">Disk</th>
+                            <th class="px-4 py-3">Firebird</th>
+                            <th class="px-4 py-3">Accurate</th>
                             <th class="px-4 py-3">Status</th>
                             <th class="px-4 py-3">Last Seen</th>
                             <th class="px-4 py-3 text-right">Actions</th>
@@ -59,6 +61,11 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-slate-700">
                         @foreach ($devices as $device)
+                            @php
+                                $networkStatus = $device->latestNetworkCheck?->tcp_status ?? $device->firebird_connection_status ?? 'unknown';
+                                $networkLatency = $device->latestNetworkCheck?->tcp_latency_ms;
+                                $accurateProcessStatus = $device->latestAccurateProcessSnapshot?->process_status ?? $device->accurate_status ?? 'unknown';
+                            @endphp
                             <tr class="hover:bg-slate-50">
                                 <td class="px-4 py-3">
                                     <a href="{{ route('devices.show', $device) }}" class="font-medium text-slate-950 hover:text-sky-700">
@@ -72,6 +79,11 @@
                                 <td class="px-4 py-3">{{ $device->latestTelemetry?->cpu_usage_percent !== null ? number_format($device->latestTelemetry->cpu_usage_percent, 1).'%' : '-' }}</td>
                                 <td class="px-4 py-3">{{ $device->latestTelemetry?->ram_usage_percent !== null ? number_format($device->latestTelemetry->ram_usage_percent, 1).'%' : '-' }}</td>
                                 <td class="px-4 py-3">{{ $device->latestTelemetry?->disk_usage_percent !== null ? number_format($device->latestTelemetry->disk_usage_percent, 1).'%' : '-' }}</td>
+                                <td class="px-4 py-3">
+                                    <x-status-badge :status="$networkStatus" />
+                                    <div class="mt-1 text-xs text-slate-500">{{ $networkLatency !== null ? number_format($networkLatency, 0).' ms' : '-' }}</div>
+                                </td>
+                                <td class="px-4 py-3"><x-status-badge :status="$accurateProcessStatus" /></td>
                                 <td class="px-4 py-3"><x-status-badge :status="$device->status" /></td>
                                 <td class="px-4 py-3">{{ $device->last_seen_at?->diffForHumans() ?? '-' }}</td>
                                 <td class="px-4 py-3">

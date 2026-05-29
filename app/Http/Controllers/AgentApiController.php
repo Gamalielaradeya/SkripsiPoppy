@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccurateProcessSnapshot;
 use App\Models\AgentCredential;
 use App\Models\Device;
 use App\Models\DeviceTelemetry;
+use App\Models\NetworkCheck;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class AgentApiController extends Controller
 {
@@ -88,6 +91,28 @@ class AgentApiController extends Controller
             'disk_usage_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'uptime_seconds' => ['nullable', 'integer', 'min:0'],
             'last_boot_at' => ['nullable', 'date'],
+            'firebird_check' => ['nullable', 'array'],
+            'firebird_check.target_type' => ['nullable', Rule::in(['firebird', 'vps', 'dashboard', 'other'])],
+            'firebird_check.target_name' => ['nullable', 'string', 'max:150'],
+            'firebird_check.target_host' => ['nullable', 'string', 'max:255'],
+            'firebird_check.target_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'firebird_check.ping_status' => ['nullable', Rule::in(['ok', 'timeout', 'failed', 'unknown'])],
+            'firebird_check.ping_latency_ms' => ['nullable', 'numeric', 'min:0'],
+            'firebird_check.tcp_status' => ['nullable', Rule::in(['connected', 'timeout', 'refused', 'failed', 'unknown'])],
+            'firebird_check.tcp_latency_ms' => ['nullable', 'numeric', 'min:0'],
+            'firebird_check.latency_ms' => ['nullable', 'numeric', 'min:0'],
+            'firebird_check.packet_loss_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'firebird_check.status' => ['nullable', Rule::in(['normal', 'warning', 'error', 'critical', 'unknown'])],
+            'firebird_check.failure_reason' => ['nullable', 'string', 'max:500'],
+            'firebird_check.checked_at' => ['nullable', 'date'],
+            'accurate_process' => ['nullable', 'array'],
+            'accurate_process.process_name' => ['nullable', 'string', 'max:100'],
+            'accurate_process.process_status' => ['nullable', Rule::in(['running', 'not_running', 'unknown'])],
+            'accurate_process.process_pid' => ['nullable', 'integer', 'min:1'],
+            'accurate_process.process_owner' => ['nullable', 'string', 'max:150'],
+            'accurate_process.process_path' => ['nullable', 'string', 'max:500'],
+            'accurate_process.process_started_at' => ['nullable', 'date'],
+            'accurate_process.checked_at' => ['nullable', 'date'],
         ]);
 
         $auth = $this->authenticateAgent($request, $validated['agent_id']);
@@ -115,6 +140,8 @@ class AgentApiController extends Controller
             ])->save();
 
             $this->storeHeartbeatSnapshot($device, $validated);
+            $this->storeFirebirdCheck($device, $validated);
+            $this->storeAccurateProcessSnapshot($device, $validated);
         });
 
         return response()->json([
@@ -232,6 +259,98 @@ class AgentApiController extends Controller
             'raw_payload' => $payload,
             'reported_at' => now(),
         ]);
+    }
+
+    private function storeFirebirdCheck(Device $device, array $payload): void
+    {
+        if (! array_key_exists('firebird_check', $payload) || ! is_array($payload['firebird_check'])) {
+            return;
+        }
+
+        $check = $payload['firebird_check'];
+        if ($this->hasNoSubmittedValues($check)) {
+            return;
+        }
+
+        $tcpStatus = $check['tcp_status'] ?? 'unknown';
+        $summaryStatus = $this->firebirdSummaryStatus($tcpStatus);
+        $latency = $check['tcp_latency_ms'] ?? $check['latency_ms'] ?? null;
+
+        NetworkCheck::query()->create([
+            'device_id' => $device->id,
+            'target_type' => $check['target_type'] ?? 'firebird',
+            'target_name' => $check['target_name'] ?? null,
+            'target_host' => $check['target_host'] ?? null,
+            'target_port' => $check['target_port'] ?? null,
+            'ping_status' => $check['ping_status'] ?? 'unknown',
+            'ping_latency_ms' => $check['ping_latency_ms'] ?? null,
+            'tcp_status' => $tcpStatus,
+            'tcp_latency_ms' => $latency,
+            'packet_loss_percent' => $check['packet_loss_percent'] ?? null,
+            'status' => $check['status'] ?? $this->networkOverallStatus($tcpStatus),
+            'raw_payload' => $check,
+            'checked_at' => $check['checked_at'] ?? now(),
+        ]);
+
+        $device->forceFill([
+            'firebird_connection_status' => $summaryStatus,
+        ])->save();
+    }
+
+    private function storeAccurateProcessSnapshot(Device $device, array $payload): void
+    {
+        if (! array_key_exists('accurate_process', $payload) || ! is_array($payload['accurate_process'])) {
+            return;
+        }
+
+        $process = $payload['accurate_process'];
+        if ($this->hasNoSubmittedValues($process)) {
+            return;
+        }
+
+        $processStatus = $process['process_status'] ?? 'unknown';
+
+        AccurateProcessSnapshot::query()->create([
+            'device_id' => $device->id,
+            'process_name' => $process['process_name'] ?? 'accurate.exe',
+            'process_status' => $processStatus,
+            'process_pid' => $process['process_pid'] ?? null,
+            'process_owner' => $process['process_owner'] ?? null,
+            'process_path' => $process['process_path'] ?? null,
+            'process_started_at' => $process['process_started_at'] ?? null,
+            'raw_payload' => $process,
+            'checked_at' => $process['checked_at'] ?? now(),
+        ]);
+
+        $device->forceFill([
+            'accurate_status' => $processStatus,
+        ])->save();
+    }
+
+    private function hasNoSubmittedValues(array $payload): bool
+    {
+        return collect($payload)
+            ->filter(fn ($value): bool => $value !== null && $value !== '')
+            ->isEmpty();
+    }
+
+    private function firebirdSummaryStatus(string $tcpStatus): string
+    {
+        return match ($tcpStatus) {
+            'connected' => 'connected',
+            'timeout' => 'timeout',
+            'refused', 'failed' => 'failed',
+            default => 'unknown',
+        };
+    }
+
+    private function networkOverallStatus(string $tcpStatus): string
+    {
+        return match ($tcpStatus) {
+            'connected' => 'normal',
+            'timeout', 'refused', 'failed' => 'error',
+            default => 'unknown',
+        };
     }
 
     private function deviceResponse(Device $device): array
