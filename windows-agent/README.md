@@ -1,6 +1,6 @@
 # Windows Agent PowerShell MVP
 
-Milestone 5 agent for Centralized Log Monitoring Dashboard. This MVP registers a real Windows device with Laravel Agent API and sends heartbeat data only.
+PowerShell agent for Centralized Log Monitoring Dashboard. Milestone 5 registered real Windows devices and sent heartbeat metadata. Milestone 6 adds real CPU, RAM, and disk telemetry to the heartbeat API payload.
 
 ## Scope
 
@@ -12,12 +12,14 @@ Implemented:
 - Local token storage after first registration
 - Heartbeat through `POST /api/agent/heartbeat`
 - Hostname, Windows user, local IPv4, ZeroTier IPv4, uptime, last boot time, RDP status, and agent version
+- CPU usage percent from Windows performance counters/CIM
+- RAM usage percent from Windows OS memory counters
+- Disk usage percent for the configured drive, default `C:`
 - `-DryRun` mode
 
 Not implemented in this milestone:
 
 - RSyslog sending
-- CPU, RAM, or disk telemetry
 - Firebird connectivity checks
 - Accurate process detection
 - Telegram notifications
@@ -63,12 +65,15 @@ Copy-Item "C:\ProgramData\CentralizedLogMonitoring\agent\config.example.json" "C
   "api_base_url": "http://10.147.20.5:8000/api/agent",
   "agent_version": "1.0.0",
   "runtime_path": "C:\\ProgramData\\CentralizedLogMonitoring",
+  "monitored_drive": "C:",
   "rdp_port": 3389,
   "request_timeout_seconds": 15
 }
 ```
 
 Use the VPS ZeroTier IP or production HTTPS URL when available.
+
+`monitored_drive` controls which Windows logical disk is reported as `disk_usage_percent`. Use `C:` unless the Accurate workstation stores its main working data on another local drive.
 
 ## Dry Run
 
@@ -79,6 +84,18 @@ powershell.exe -ExecutionPolicy Bypass -File "C:\ProgramData\CentralizedLogMonit
 ```
 
 Token value is never printed. Dry run reports only whether a local token file exists.
+
+The dry-run heartbeat payload should include real telemetry when Windows exposes it:
+
+```text
+cpu_usage_percent
+ram_usage_percent
+disk_usage_percent
+uptime_seconds
+last_boot_at
+```
+
+If Windows cannot provide a metric, the agent sends `null` for that field. The Laravel API stores the null and does not invent `0` or random values.
 
 ## Real Run
 
@@ -127,6 +144,9 @@ hostname
 windows_user
 ip_local
 zerotier_ip
+cpu_usage_percent
+ram_usage_percent
+disk_usage_percent
 uptime_seconds
 last_boot_at
 rdp_status

@@ -83,6 +83,9 @@ class AgentApiController extends Controller
             'ip_zerotier' => ['nullable', 'ip'],
             'agent_version' => ['nullable', 'string', 'max:50'],
             'rdp_status' => ['nullable', 'string', 'max:30'],
+            'cpu_usage_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'ram_usage_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'disk_usage_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'uptime_seconds' => ['nullable', 'integer', 'min:0'],
             'last_boot_at' => ['nullable', 'date'],
         ]);
@@ -201,7 +204,15 @@ class AgentApiController extends Controller
 
     private function storeHeartbeatSnapshot(Device $device, array $payload): void
     {
-        if (! array_key_exists('uptime_seconds', $payload) && ! array_key_exists('last_boot_at', $payload)) {
+        $telemetryKeys = [
+            'cpu_usage_percent',
+            'ram_usage_percent',
+            'disk_usage_percent',
+            'uptime_seconds',
+            'last_boot_at',
+        ];
+
+        if (! collect($telemetryKeys)->contains(fn (string $key): bool => array_key_exists($key, $payload))) {
             return;
         }
 
@@ -212,6 +223,9 @@ class AgentApiController extends Controller
             'windows_user' => $payload['windows_user'] ?? $device->windows_user,
             'ip_zerotier' => $payload['zerotier_ip'] ?? $payload['ip_zerotier'] ?? $device->ip_zerotier,
             'ip_local' => $payload['ip_local'] ?? $payload['ip_address'] ?? $device->ip_local,
+            'cpu_usage_percent' => $payload['cpu_usage_percent'] ?? null,
+            'ram_usage_percent' => $payload['ram_usage_percent'] ?? null,
+            'disk_usage_percent' => $payload['disk_usage_percent'] ?? null,
             'uptime_seconds' => $payload['uptime_seconds'] ?? null,
             'last_boot_at' => $payload['last_boot_at'] ?? null,
             'agent_status' => 'online',

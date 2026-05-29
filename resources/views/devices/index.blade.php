@@ -49,6 +49,9 @@
                             <th class="px-4 py-3">Hostname</th>
                             <th class="px-4 py-3">Windows User</th>
                             <th class="px-4 py-3">ZeroTier IP</th>
+                            <th class="px-4 py-3">CPU</th>
+                            <th class="px-4 py-3">RAM</th>
+                            <th class="px-4 py-3">Disk</th>
                             <th class="px-4 py-3">Status</th>
                             <th class="px-4 py-3">Last Seen</th>
                             <th class="px-4 py-3 text-right">Actions</th>
@@ -66,6 +69,9 @@
                                 <td class="px-4 py-3">{{ $device->hostname }}</td>
                                 <td class="px-4 py-3">{{ $device->windows_user ?? '-' }}</td>
                                 <td class="px-4 py-3 font-mono text-xs">{{ $device->ip_zerotier ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $device->latestTelemetry?->cpu_usage_percent !== null ? number_format($device->latestTelemetry->cpu_usage_percent, 1).'%' : '-' }}</td>
+                                <td class="px-4 py-3">{{ $device->latestTelemetry?->ram_usage_percent !== null ? number_format($device->latestTelemetry->ram_usage_percent, 1).'%' : '-' }}</td>
+                                <td class="px-4 py-3">{{ $device->latestTelemetry?->disk_usage_percent !== null ? number_format($device->latestTelemetry->disk_usage_percent, 1).'%' : '-' }}</td>
                                 <td class="px-4 py-3"><x-status-badge :status="$device->status" /></td>
                                 <td class="px-4 py-3">{{ $device->last_seen_at?->diffForHumans() ?? '-' }}</td>
                                 <td class="px-4 py-3">

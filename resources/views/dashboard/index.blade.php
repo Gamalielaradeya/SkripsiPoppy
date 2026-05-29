@@ -40,6 +40,9 @@
                             <tr>
                                 <th class="px-3 py-2">Device</th>
                                 <th class="px-3 py-2">Windows User</th>
+                                <th class="px-3 py-2">CPU</th>
+                                <th class="px-3 py-2">RAM</th>
+                                <th class="px-3 py-2">Disk</th>
                                 <th class="px-3 py-2">ZeroTier</th>
                                 <th class="px-3 py-2">Firebird</th>
                                 <th class="px-3 py-2">Accurate</th>
@@ -55,6 +58,9 @@
                                         <div class="text-xs text-slate-500">{{ $device->hostname }}</div>
                                     </td>
                                     <td class="px-3 py-3">{{ $device->windows_user ?? '-' }}</td>
+                                    <td class="px-3 py-3">{{ $device->latestTelemetry?->cpu_usage_percent !== null ? number_format($device->latestTelemetry->cpu_usage_percent, 1).'%' : '-' }}</td>
+                                    <td class="px-3 py-3">{{ $device->latestTelemetry?->ram_usage_percent !== null ? number_format($device->latestTelemetry->ram_usage_percent, 1).'%' : '-' }}</td>
+                                    <td class="px-3 py-3">{{ $device->latestTelemetry?->disk_usage_percent !== null ? number_format($device->latestTelemetry->disk_usage_percent, 1).'%' : '-' }}</td>
                                     <td class="px-3 py-3 font-mono text-xs">{{ $device->ip_zerotier ?? '-' }}</td>
                                     <td class="px-3 py-3"><x-status-badge :status="$device->firebird_connection_status" /></td>
                                     <td class="px-3 py-3"><x-status-badge :status="$device->accurate_status" /></td>

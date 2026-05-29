@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Device extends Model
 {
@@ -52,6 +53,11 @@ class Device extends Model
     public function telemetries(): HasMany
     {
         return $this->hasMany(DeviceTelemetry::class);
+    }
+
+    public function latestTelemetry(): HasOne
+    {
+        return $this->hasOne(DeviceTelemetry::class)->latestOfMany('reported_at');
     }
 
     public function networkChecks(): HasMany

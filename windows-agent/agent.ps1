@@ -229,6 +229,114 @@ function Get-RdpStatus {
     return 'unavailable'
 }
 
+function ConvertTo-UsagePercent {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+
+    try {
+        $number = [double]$Value
+        if ([double]::IsNaN($number) -or [double]::IsInfinity($number)) {
+            return $null
+        }
+
+        if ($number -lt 0) {
+            $number = 0
+        }
+
+        if ($number -gt 100) {
+            $number = 100
+        }
+
+        return [math]::Round($number, 2)
+    } catch {
+        return $null
+    }
+}
+
+function Get-CpuUsagePercent {
+    try {
+        $processor = Get-CimInstance `
+            -ClassName Win32_PerfFormattedData_PerfOS_Processor `
+            -Filter "Name='_Total'" `
+            -ErrorAction Stop |
+            Select-Object -First 1
+
+        if ($processor -and $null -ne $processor.PercentProcessorTime) {
+            return ConvertTo-UsagePercent -Value $processor.PercentProcessorTime
+        }
+    } catch {
+        try {
+            $counter = Get-Counter `
+                -Counter '\Processor(_Total)\% Processor Time' `
+                -SampleInterval 1 `
+                -MaxSamples 1 `
+                -ErrorAction Stop
+
+            return ConvertTo-UsagePercent -Value $counter.CounterSamples[0].CookedValue
+        } catch {
+            return $null
+        }
+    }
+
+    return $null
+}
+
+function Get-RamUsagePercent {
+    try {
+        $os = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
+        $totalKb = [double]$os.TotalVisibleMemorySize
+        $freeKb = [double]$os.FreePhysicalMemory
+
+        if ($totalKb -le 0) {
+            return $null
+        }
+
+        return ConvertTo-UsagePercent -Value ((($totalKb - $freeKb) / $totalKb) * 100)
+    } catch {
+        return $null
+    }
+}
+
+function Get-DiskUsagePercent {
+    param([string]$DriveLetter)
+
+    try {
+        $driveId = $DriveLetter
+        if ([string]::IsNullOrWhiteSpace($driveId)) {
+            $driveId = $env:SystemDrive
+        }
+
+        if ([string]::IsNullOrWhiteSpace($driveId)) {
+            $driveId = 'C:'
+        }
+
+        $driveId = $driveId.Trim().TrimEnd('\')
+        if (-not $driveId.EndsWith(':')) {
+            $driveId = "${driveId}:"
+        }
+
+        $disk = Get-CimInstance `
+            -ClassName Win32_LogicalDisk `
+            -Filter "DeviceID='$driveId'" `
+            -ErrorAction Stop |
+            Select-Object -First 1
+
+        if (-not $disk -or $null -eq $disk.Size -or [double]$disk.Size -le 0) {
+            return $null
+        }
+
+        $size = [double]$disk.Size
+        $free = [double]$disk.FreeSpace
+
+        return ConvertTo-UsagePercent -Value ((($size - $free) / $size) * 100)
+    } catch {
+        return $null
+    }
+}
+
 function New-AgentPayload {
     param(
         [string]$AgentId,
@@ -246,6 +354,7 @@ function New-AgentPayload {
     }
 
     $rdpPort = [int](Get-ConfigValue -Config $Config -Name 'rdp_port' -DefaultValue 3389)
+    $monitoredDrive = [string](Get-ConfigValue -Config $Config -Name 'monitored_drive' -DefaultValue $env:SystemDrive)
 
     return [ordered]@{
         agent_id = $AgentId
@@ -255,6 +364,9 @@ function New-AgentPayload {
         zerotier_ip = Get-ZeroTierIPv4
         os_name = $osInfo.Name
         os_version = $osInfo.Version
+        cpu_usage_percent = Get-CpuUsagePercent
+        ram_usage_percent = Get-RamUsagePercent
+        disk_usage_percent = Get-DiskUsagePercent -DriveLetter $monitoredDrive
         uptime_seconds = $uptimeSeconds
         last_boot_at = $lastBootAt
         rdp_status = Get-RdpStatus -Port $rdpPort

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\AgentCredential;
 use App\Models\Device;
+use App\Models\DeviceTelemetry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -131,6 +132,110 @@ class AgentApiTest extends TestCase
             'ram_usage_percent' => 0,
             'disk_usage_percent' => 0,
         ]);
+
+        $telemetry = DeviceTelemetry::query()->where('device_id', $device->id)->firstOrFail();
+        $this->assertNull($telemetry->cpu_usage_percent);
+        $this->assertNull($telemetry->ram_usage_percent);
+        $this->assertNull($telemetry->disk_usage_percent);
+    }
+
+    public function test_heartbeat_stores_cpu_ram_and_disk_telemetry_when_submitted(): void
+    {
+        [$device, $token] = $this->registeredDeviceWithToken('agent-api-test-telemetry-001', 'HOST-TEL-001');
+
+        $this->postJson('/api/agent/heartbeat', [
+            'agent_id' => $device->agent_id,
+            'hostname' => 'HOST-TEL-001',
+            'cpu_usage_percent' => 37.25,
+            'ram_usage_percent' => 64.5,
+            'disk_usage_percent' => 71.75,
+            'uptime_seconds' => 3600,
+            'last_boot_at' => '2026-05-29T02:00:00+07:00',
+        ], [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertOk()
+            ->assertJsonPath('status', 'heartbeat_received');
+
+        $telemetry = DeviceTelemetry::query()->where('device_id', $device->id)->firstOrFail();
+
+        $this->assertSame(37.25, $telemetry->cpu_usage_percent);
+        $this->assertSame(64.5, $telemetry->ram_usage_percent);
+        $this->assertSame(71.75, $telemetry->disk_usage_percent);
+        $this->assertSame(3600, $telemetry->uptime_seconds);
+        $this->assertSame(37.25, $telemetry->raw_payload['cpu_usage_percent']);
+        $this->assertSame(64.5, $telemetry->raw_payload['ram_usage_percent']);
+        $this->assertSame(71.75, $telemetry->raw_payload['disk_usage_percent']);
+    }
+
+    public function test_heartbeat_preserves_nulls_for_omitted_telemetry_fields(): void
+    {
+        [$device, $token] = $this->registeredDeviceWithToken('agent-api-test-telemetry-002', 'HOST-TEL-002');
+
+        $this->postJson('/api/agent/heartbeat', [
+            'agent_id' => $device->agent_id,
+            'hostname' => 'HOST-TEL-002',
+            'cpu_usage_percent' => 42,
+        ], [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertOk();
+
+        $telemetry = DeviceTelemetry::query()->where('device_id', $device->id)->firstOrFail();
+
+        $this->assertSame(42.0, $telemetry->cpu_usage_percent);
+        $this->assertNull($telemetry->ram_usage_percent);
+        $this->assertNull($telemetry->disk_usage_percent);
+        $this->assertNull($telemetry->uptime_seconds);
+        $this->assertNull($telemetry->last_boot_at);
+    }
+
+    public function test_heartbeat_rejects_telemetry_values_outside_zero_to_one_hundred(): void
+    {
+        [$device, $token] = $this->registeredDeviceWithToken('agent-api-test-telemetry-003', 'HOST-TEL-003');
+
+        $this->postJson('/api/agent/heartbeat', [
+            'agent_id' => $device->agent_id,
+            'cpu_usage_percent' => 100.01,
+        ], [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('cpu_usage_percent');
+
+        $this->postJson('/api/agent/heartbeat', [
+            'agent_id' => $device->agent_id,
+            'ram_usage_percent' => -0.01,
+        ], [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('ram_usage_percent');
+
+        $this->assertDatabaseMissing('device_telemetries', [
+            'device_id' => $device->id,
+        ]);
+    }
+
+    public function test_device_latest_telemetry_relationship_returns_newest_reported_snapshot(): void
+    {
+        $device = Device::query()->create([
+            'agent_id' => 'agent-api-test-telemetry-004',
+            'hostname' => 'HOST-TEL-004',
+        ]);
+
+        $older = $device->telemetries()->create([
+            'agent_id' => $device->agent_id,
+            'cpu_usage_percent' => 20,
+            'reported_at' => now()->subMinutes(10),
+        ]);
+
+        $newer = $device->telemetries()->create([
+            'agent_id' => $device->agent_id,
+            'cpu_usage_percent' => 80,
+            'reported_at' => now(),
+        ]);
+
+        $device->refresh();
+
+        $this->assertTrue($device->latestTelemetry->is($newer));
+        $this->assertFalse($device->latestTelemetry->is($older));
     }
 
     public function test_invalid_token_is_rejected(): void

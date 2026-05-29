@@ -72,19 +72,26 @@
                         <dl class="space-y-4 text-sm">
                             <div class="flex items-center justify-between gap-4">
                                 <dt class="text-slate-500">CPU</dt>
-                                <dd class="font-medium text-slate-900">{{ $latestTelemetry?->cpu_usage_percent !== null ? $latestTelemetry->cpu_usage_percent.'%' : '-' }}</dd>
+                                <dd class="font-medium text-slate-900">{{ $latestTelemetry?->cpu_usage_percent !== null ? number_format($latestTelemetry->cpu_usage_percent, 1).'%' : '-' }}</dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
                                 <dt class="text-slate-500">RAM</dt>
-                                <dd class="font-medium text-slate-900">{{ $latestTelemetry?->ram_usage_percent !== null ? $latestTelemetry->ram_usage_percent.'%' : '-' }}</dd>
+                                <dd class="font-medium text-slate-900">{{ $latestTelemetry?->ram_usage_percent !== null ? number_format($latestTelemetry->ram_usage_percent, 1).'%' : '-' }}</dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
                                 <dt class="text-slate-500">Disk</dt>
-                                <dd class="font-medium text-slate-900">{{ $latestTelemetry?->disk_usage_percent !== null ? $latestTelemetry->disk_usage_percent.'%' : '-' }}</dd>
+                                <dd class="font-medium text-slate-900">{{ $latestTelemetry?->disk_usage_percent !== null ? number_format($latestTelemetry->disk_usage_percent, 1).'%' : '-' }}</dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
                                 <dt class="text-slate-500">Uptime</dt>
                                 <dd class="font-medium text-slate-900">{{ $latestTelemetry?->uptime_seconds !== null ? number_format($latestTelemetry->uptime_seconds).' sec' : '-' }}</dd>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <dt class="text-slate-500">Last Boot</dt>
+                                <dd class="font-medium text-slate-900">{{ $latestTelemetry?->last_boot_at?->format('Y-m-d H:i') ?? '-' }}</dd>
+                            </div>
+                            <div class="rounded-md bg-slate-50 p-3 text-xs text-slate-600">
+                                Reported at: {{ $latestTelemetry?->reported_at?->diffForHumans() ?? 'Belum ada telemetry snapshot.' }}
                             </div>
                         </dl>
                     </x-info-panel>
