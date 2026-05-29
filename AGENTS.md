@@ -81,11 +81,13 @@ Completed:
 - Milestone 6: Device Telemetry Real
 - Milestone 7: RSyslog Structured Log Pipeline
 - Milestone 8: Firebird Connectivity + Accurate Process Monitoring
-
-Next:
 - Milestone 9: Accurate Firebird Audit Reader
 
-Do not skip ahead to Telegram, remote restart, or deployment before completing and committing Milestone 9.
+Next:
+- Milestone 10: Contextual Alerts + Telegram
+
+Do not skip ahead to remote restart or deployment before completing and committing Milestone 10.
+
 ---
 
 ## Locked Implementation Milestones

@@ -4,34 +4,43 @@
 @section('description', 'Audit trail Accurate dari Firebird AUDIT + USERS secara read-only.')
 
 @section('content')
-    <x-filter-panel description="Filter visual untuk audit Firebird. Data tetap hanya dari record accurate_audit_events yang sudah ada.">
-        <div class="grid gap-3 md:grid-cols-5">
+    <x-filter-panel description="Filter data audit tersimpan dari Firebird AUDIT + USERS.">
+        <form method="GET" action="{{ route('accurate-audit.index') }}" class="grid gap-3 lg:grid-cols-7">
             <label class="block">
-                <span class="text-xs font-medium text-slate-600">Date Range</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Start - End">
+                <span class="text-xs font-medium text-slate-600">From</span>
+                <input type="date" name="from" value="{{ $filters['from'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+            </label>
+            <label class="block">
+                <span class="text-xs font-medium text-slate-600">To</span>
+                <input type="date" name="to" value="{{ $filters['to'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Accurate User</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Username">
+                <input name="username" value="{{ $filters['username'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Username">
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Source / Module</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Module">
+                <input name="source" value="{{ $filters['source'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Module">
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Transaction Type</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Type">
+                <input name="transaction_type" value="{{ $filters['transaction_type'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Type">
             </label>
-            <div class="flex items-end">
-                <x-action-button disabled class="w-full">Apply Filter</x-action-button>
+            <label class="block">
+                <span class="text-xs font-medium text-slate-600">Keyword</span>
+                <input name="keyword" value="{{ $filters['keyword'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Description / invoice">
+            </label>
+            <div class="flex items-end gap-2">
+                <button type="submit" class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">Apply</button>
+                <a href="{{ route('accurate-audit.index') }}" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Reset</a>
             </div>
-        </div>
+        </form>
     </x-filter-panel>
 
     @if ($auditEvents->isEmpty())
         <x-empty-state
             title="Belum ada data audit Accurate."
-            message="Accurate Audit Reader belum diimplementasikan. Halaman ini hanya akan memakai Firebird AUDIT + USERS, bukan LOGIN."
+            message="Belum ada event audit tersimpan dari Firebird AUDIT + USERS. Jalankan sync setelah koneksi read-only dikonfigurasi."
         />
     @else
         <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -46,6 +55,7 @@
                             <th class="px-4 py-3">Transaction Type</th>
                             <th class="px-4 py-3">Description</th>
                             <th class="px-4 py-3">Reference / Invoice</th>
+                            <th class="px-4 py-3">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-slate-700">
@@ -60,6 +70,7 @@
                                 <td class="px-4 py-3">{{ $auditEvent->transaction_type ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ \Illuminate\Support\Str::limit($auditEvent->transaction_description ?? '-', 80) }}</td>
                                 <td class="px-4 py-3">{{ $auditEvent->invoice_no ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $auditEvent->status ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
