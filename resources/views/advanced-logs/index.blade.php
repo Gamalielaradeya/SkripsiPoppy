@@ -8,34 +8,47 @@
         Advanced Logs adalah ruang investigasi teknis. Raw message, source file, dan hash tidak ditonjolkan di dashboard utama.
     </div>
 
-    <x-filter-panel description="Filter visual untuk investigasi log. Parser/filter kompleks belum diimplementasikan pada milestone UI ini.">
-        <div class="grid gap-3 md:grid-cols-6">
+    <x-filter-panel description="Filter teknis berdasarkan kolom log yang sudah tersimpan dari RSyslog parser.">
+        <form method="GET" action="{{ route('advanced-logs.index') }}" class="grid gap-3 md:grid-cols-6">
             <label class="block">
-                <span class="text-xs font-medium text-slate-600">Date</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Date range">
+                <span class="text-xs font-medium text-slate-600">From</span>
+                <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+            </label>
+            <label class="block">
+                <span class="text-xs font-medium text-slate-600">To</span>
+                <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Hostname</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Host">
+                <input name="hostname" value="{{ $filters['hostname'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Host">
             </label>
             <label class="block">
-                <span class="text-xs font-medium text-slate-600">Severity</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All severity</option>
+                <span class="text-xs font-medium text-slate-600">Event Type</span>
+                <select name="event_type" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All events</option>
+                    @foreach ($eventTypes as $eventType)
+                        <option value="{{ $eventType }}" @selected(($filters['event_type'] ?? '') === $eventType)>{{ $eventType }}</option>
+                    @endforeach
                 </select>
             </label>
             <label class="block">
-                <span class="text-xs font-medium text-slate-600">Category</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Category">
+                <span class="text-xs font-medium text-slate-600">Severity</span>
+                <select name="severity" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All severity</option>
+                    @foreach ($severities as $severity)
+                        <option value="{{ $severity }}" @selected(($filters['severity'] ?? '') === $severity)>{{ $severity }}</option>
+                    @endforeach
+                </select>
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Keyword</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Raw/parsed">
+                <input name="keyword" value="{{ $filters['keyword'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Raw/parsed">
             </label>
-            <div class="flex items-end">
-                <x-action-button disabled class="w-full">Apply</x-action-button>
+            <div class="flex items-end gap-2 md:col-span-6">
+                <x-action-button class="w-full md:w-auto">Apply</x-action-button>
+                <a href="{{ route('advanced-logs.index') }}" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
             </div>
-        </div>
+        </form>
     </x-filter-panel>
 
     @if ($logs->isEmpty())
@@ -56,6 +69,7 @@
                             <th class="px-4 py-3">Severity</th>
                             <th class="px-4 py-3">Parsed Message</th>
                             <th class="px-4 py-3">Raw Preview</th>
+                            <th class="px-4 py-3">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-slate-700">
@@ -68,6 +82,9 @@
                                 <td class="px-4 py-3"><x-severity-badge :severity="$log->severity" /></td>
                                 <td class="px-4 py-3">{{ \Illuminate\Support\Str::limit($log->parsed_message ?? '-', 80) }}</td>
                                 <td class="px-4 py-3 font-mono text-xs">{{ \Illuminate\Support\Str::limit($log->raw_message ?? '-', 80) }}</td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('advanced-logs.show', $log) }}" class="text-sm font-semibold text-slate-700 hover:text-slate-950">Detail</a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

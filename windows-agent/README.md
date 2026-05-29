@@ -1,6 +1,6 @@
 # Windows Agent PowerShell MVP
 
-PowerShell agent for Centralized Log Monitoring Dashboard. Milestone 5 registered real Windows devices and sent heartbeat metadata. Milestone 6 adds real CPU, RAM, and disk telemetry to the heartbeat API payload.
+PowerShell agent for Centralized Log Monitoring Dashboard. Milestone 5 registered real Windows devices and sent heartbeat metadata. Milestone 6 adds real CPU, RAM, and disk telemetry to the heartbeat API payload. Milestone 7 adds optional structured syslog output to RSyslog for Advanced Logs.
 
 ## Scope
 
@@ -15,11 +15,11 @@ Implemented:
 - CPU usage percent from Windows performance counters/CIM
 - RAM usage percent from Windows OS memory counters
 - Disk usage percent for the configured drive, default `C:`
+- Optional structured syslog messages for `device-monitor`, `perf-monitor`, and `heartbeat-monitor`
 - `-DryRun` mode
 
 Not implemented in this milestone:
 
-- RSyslog sending
 - Firebird connectivity checks
 - Accurate process detection
 - Telegram notifications
@@ -67,13 +67,22 @@ Copy-Item "C:\ProgramData\CentralizedLogMonitoring\agent\config.example.json" "C
   "runtime_path": "C:\\ProgramData\\CentralizedLogMonitoring",
   "monitored_drive": "C:",
   "rdp_port": 3389,
-  "request_timeout_seconds": 15
+  "request_timeout_seconds": 15,
+  "syslog_enabled": false,
+  "syslog_host": "10.147.20.5",
+  "syslog_port": 5514,
+  "syslog_protocol": "udp",
+  "syslog_app_name": "centralized-monitoring-agent"
 }
 ```
 
 Use the VPS ZeroTier IP or production HTTPS URL when available.
 
 `monitored_drive` controls which Windows logical disk is reported as `disk_usage_percent`. Use `C:` unless the Accurate workstation stores its main working data on another local drive.
+
+Set `syslog_enabled` to `true` only after the VPS RSyslog receiver is ready. Use the VPS ZeroTier IP for `syslog_host`. The PowerShell MVP supports UDP syslog only, so keep `syslog_protocol` as `udp`.
+
+Syslog messages do not include the local agent token or any API secret.
 
 ## Dry Run
 
@@ -97,6 +106,14 @@ last_boot_at
 
 If Windows cannot provide a metric, the agent sends `null` for that field. The Laravel API stores the null and does not invent `0` or random values.
 
+When `syslog_enabled=true`, dry run also prints the structured syslog lines and does not send them:
+
+```text
+device-monitor: event_type=device_heartbeat agent_id=... hostname=... status=online
+perf-monitor: event_type=performance_status agent_id=... cpu_usage_percent=...
+heartbeat-monitor: event_type=heartbeat_status agent_id=... uptime_seconds=...
+```
+
 ## Real Run
 
 Run once manually:
@@ -106,6 +123,8 @@ powershell.exe -ExecutionPolicy Bypass -File "C:\ProgramData\CentralizedLogMonit
 ```
 
 First real run registers the agent if `agent-token.txt` is missing. Later runs reuse the stored token and send heartbeat.
+
+If syslog is enabled, the same run sends structured UDP syslog messages to the configured RSyslog host after the heartbeat API succeeds.
 
 ## Scheduled Task Example
 
@@ -168,9 +187,23 @@ Test-Path "C:\ProgramData\CentralizedLogMonitoring\agent-token.txt"
 
 7. Rename Windows hostname only if safe for the test environment, then rerun agent and confirm device identity remains based on `agent_id`.
 
+8. If syslog is enabled, confirm RSyslog receives raw lines:
+
+```powershell
+Get-Content "\\<vps-share-if-available>\remote\all.log" -Tail 20
+```
+
+Or on the VPS:
+
+```bash
+sudo tail -n 20 /var/log/remote/all.log
+php artisan rsyslog:parse
+```
+
 ## Troubleshooting
 
 - If registration succeeds but `agent-token.txt` is deleted, the server may not return another token for the same `agent_id`. Regenerate server credential or restore the local token file.
 - If ZeroTier IP is empty, check that ZeroTier is installed, joined to the network, and the adapter name or description contains `ZeroTier`.
 - If RDP status is `unavailable`, check `TermService`, Windows firewall, and whether port `3389` is listening.
 - If heartbeat fails with unauthorized, verify that `agent-token.txt` belongs to the same `agent_id.txt`.
+- If syslog sending fails, verify ZeroTier connectivity, `syslog_host`, firewall rules, and that RSyslog listens on `5514/udp`.

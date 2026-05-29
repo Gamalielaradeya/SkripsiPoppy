@@ -380,6 +380,179 @@ function ConvertTo-AgentJson {
     return $Payload | ConvertTo-Json -Depth 8
 }
 
+function ConvertTo-SyslogValue {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+
+    if ($Value -is [bool]) {
+        return ([string]$Value).ToLowerInvariant()
+    }
+
+    if ($Value -is [datetime]) {
+        return $Value.ToUniversalTime().ToString('o')
+    }
+
+    $stringValue = [string]$Value
+    if ([string]::IsNullOrWhiteSpace($stringValue)) {
+        return $null
+    }
+
+    if ($stringValue -match '[\s"=]') {
+        $escaped = $stringValue.Replace('\', '\\').Replace('"', '\"')
+        return '"' + $escaped + '"'
+    }
+
+    return $stringValue
+}
+
+function ConvertTo-KeyValueLine {
+    param([System.Collections.IDictionary]$Fields)
+
+    $parts = New-Object System.Collections.Generic.List[string]
+    $orderedKeys = New-Object System.Collections.Generic.List[string]
+
+    foreach ($preferredKey in @('event_type', 'agent_id', 'hostname')) {
+        if ($Fields.Contains($preferredKey)) {
+            $orderedKeys.Add($preferredKey)
+        }
+    }
+
+    foreach ($key in $Fields.Keys) {
+        if (-not $orderedKeys.Contains([string]$key)) {
+            $orderedKeys.Add([string]$key)
+        }
+    }
+
+    foreach ($key in $orderedKeys) {
+        $value = ConvertTo-SyslogValue -Value $Fields[$key]
+        if ($null -ne $value) {
+            $parts.Add("$key=$value")
+        }
+    }
+
+    return ($parts -join ' ')
+}
+
+function New-SyslogMessage {
+    param(
+        [string]$Tag,
+        [hashtable]$Fields
+    )
+
+    return "${Tag}: $(ConvertTo-KeyValueLine -Fields $Fields)"
+}
+
+function New-AgentSyslogMessages {
+    param(
+        [object]$Payload,
+        [object]$Config
+    )
+
+    $appName = [string](Get-ConfigValue -Config $Config -Name 'syslog_app_name' -DefaultValue 'centralized-monitoring-agent')
+
+    $deviceFields = [ordered]@{
+        event_type = 'device_heartbeat'
+        agent_id = $Payload.agent_id
+        hostname = $Payload.hostname
+        windows_user = $Payload.windows_user
+        ip_local = $Payload.ip_local
+        ip_zerotier = $Payload.zerotier_ip
+        rdp_status = $Payload.rdp_status
+        agent_version = $Payload.agent_version
+        app_name = $appName
+        status = 'online'
+    }
+
+    $perfFields = [ordered]@{
+        event_type = 'performance_status'
+        agent_id = $Payload.agent_id
+        hostname = $Payload.hostname
+        cpu_usage_percent = $Payload.cpu_usage_percent
+        ram_usage_percent = $Payload.ram_usage_percent
+        disk_usage_percent = $Payload.disk_usage_percent
+        app_name = $appName
+        status = 'reported'
+    }
+
+    $heartbeatFields = [ordered]@{
+        event_type = 'heartbeat_status'
+        agent_id = $Payload.agent_id
+        hostname = $Payload.hostname
+        uptime_seconds = $Payload.uptime_seconds
+        last_boot_at = $Payload.last_boot_at
+        app_name = $appName
+        status = 'online'
+    }
+
+    return @(
+        New-SyslogMessage -Tag 'device-monitor' -Fields $deviceFields
+        New-SyslogMessage -Tag 'perf-monitor' -Fields $perfFields
+        New-SyslogMessage -Tag 'heartbeat-monitor' -Fields $heartbeatFields
+    )
+}
+
+function Send-SyslogUdp {
+    param(
+        [string]$Server,
+        [int]$Port,
+        [string]$Message
+    )
+
+    $udpClient = New-Object System.Net.Sockets.UdpClient
+
+    try {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($Message)
+        [void]$udpClient.Send($bytes, $bytes.Length, $Server, $Port)
+    } finally {
+        $udpClient.Close()
+    }
+}
+
+function Send-AgentSyslogMessages {
+    param(
+        [object]$Config,
+        [object]$Payload,
+        [switch]$DryRun
+    )
+
+    $enabled = [bool](Get-ConfigValue -Config $Config -Name 'syslog_enabled' -DefaultValue $false)
+    if (-not $enabled) {
+        return
+    }
+
+    $server = [string](Get-ConfigValue -Config $Config -Name 'syslog_host')
+    if ([string]::IsNullOrWhiteSpace($server)) {
+        throw "Config value syslog_host is required when syslog_enabled=true."
+    }
+
+    $port = [int](Get-ConfigValue -Config $Config -Name 'syslog_port' -DefaultValue 5514)
+    $protocol = ([string](Get-ConfigValue -Config $Config -Name 'syslog_protocol' -DefaultValue 'udp')).ToLowerInvariant()
+
+    if ($protocol -ne 'udp') {
+        throw "Only UDP syslog is supported by this PowerShell MVP. Set syslog_protocol to udp."
+    }
+
+    $messages = @(New-AgentSyslogMessages -Payload $Payload -Config $Config)
+
+    if ($DryRun) {
+        Write-AgentInfo "Syslog dry-run lines:"
+        foreach ($message in $messages) {
+            Write-Host $message
+        }
+
+        return
+    }
+
+    foreach ($message in $messages) {
+        Send-SyslogUdp -Server $server -Port $port -Message $message
+    }
+
+    Write-AgentInfo "Syslog messages sent over UDP to ${server}:${port}."
+}
+
 function Invoke-AgentPost {
     param(
         [string]$Uri,
@@ -435,6 +608,8 @@ try {
         Write-AgentInfo "Heartbeat payload:"
         ConvertTo-AgentJson -Payload $payload | Write-Host
 
+        Send-AgentSyslogMessages -Config $config -Payload ([pscustomobject]$payload) -DryRun
+
         Write-AgentInfo "Authorization: Bearer <redacted>"
         exit 0
     }
@@ -468,6 +643,7 @@ try {
         -TimeoutSeconds $timeoutSeconds
 
     Write-AgentInfo "Heartbeat sent. Status: $($heartbeatResponse.status)"
+    Send-AgentSyslogMessages -Config $config -Payload ([pscustomobject]$payload)
     exit 0
 } catch {
     Write-Error $_.Exception.Message

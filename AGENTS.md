@@ -78,11 +78,12 @@ Completed:
 - Milestone 3: Agent Registration API
 - Milestone 4: UI Foundation + Hallmark Design Pass
 - Milestone 5: Windows Agent PowerShell MVP
-
-Next:
 - Milestone 6: Device Telemetry Real
 
-Do not skip ahead to RSyslog parser, Firebird sync, Telegram, or remote restart before completing and committing Milestone 6.
+Next:
+- Milestone 7: RSyslog Structured Log Pipeline
+
+Do not skip ahead to Firebird sync, Telegram, or remote restart before completing and committing Milestone 7.
 
 ---
 
