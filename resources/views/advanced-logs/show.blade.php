@@ -6,6 +6,6 @@
 @section('content')
     <x-empty-state
         title="Detail log belum tersedia."
-        message="Route siap untuk log ID {{ $id }}, tetapi parser dan tabel log belum masuk Milestone 1."
+        message="Route siap untuk log ID {{ $id }}, tetapi RSyslog parser belum diimplementasikan."
     />
 @endsection

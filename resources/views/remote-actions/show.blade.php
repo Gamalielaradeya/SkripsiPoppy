@@ -6,6 +6,6 @@
 @section('content')
     <x-empty-state
         title="Detail remote action belum tersedia."
-        message="Route siap untuk remote action ID {{ $id }}, tetapi command polling belum masuk Milestone 1."
+        message="Route siap untuk remote action ID {{ $id }}, tetapi command polling dan execution belum diimplementasikan."
     />
 @endsection

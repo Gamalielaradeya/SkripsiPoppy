@@ -6,6 +6,6 @@
 @section('content')
     <x-empty-state
         title="Detail incident belum tersedia."
-        message="Route siap untuk incident ID {{ $id }}, tetapi incident engine belum masuk Milestone 1."
+        message="Route siap untuk incident ID {{ $id }}, tetapi incident correlation belum diimplementasikan."
     />
 @endsection

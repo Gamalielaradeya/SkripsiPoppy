@@ -6,6 +6,6 @@
 @section('content')
     <x-empty-state
         title="Detail audit belum tersedia."
-        message="Route siap untuk audit ID {{ $id }}, tetapi sinkronisasi Firebird belum masuk Milestone 1."
+        message="Route siap untuk audit ID {{ $id }}, tetapi sinkronisasi Firebird belum diimplementasikan."
     />
 @endsection

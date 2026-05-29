@@ -16,6 +16,8 @@ Do not commit:
 - Real Accurate database files
 - Raw logs containing operational or user data
 
+Milestone 2A system settings may store environment variable names such as `TELEGRAM_BOT_TOKEN`, but must not store actual tokens, passwords, or production secrets.
+
 ## Remote Restart
 
 Remote restart must remain manual and controlled:
@@ -25,6 +27,7 @@ Remote restart must remain manual and controlled:
 - Action must be audited.
 - Windows Agent authorization required.
 - No automatic restart from alert or incident.
+- Milestone 2B stores `remote_actions` records only; it does not execute restart commands.
 
 ## Accurate Database
 

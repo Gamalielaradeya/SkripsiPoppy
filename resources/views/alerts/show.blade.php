@@ -6,6 +6,6 @@
 @section('content')
     <x-empty-state
         title="Detail alert belum tersedia."
-        message="Route siap untuk alert ID {{ $id }}, tetapi alert engine belum masuk Milestone 1."
+        message="Route siap untuk alert ID {{ $id }}, tetapi alert detection belum diimplementasikan."
     />
 @endsection
