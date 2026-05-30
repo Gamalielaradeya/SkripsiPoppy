@@ -855,12 +855,13 @@ function New-RestartComment {
 
 function Format-RestartCommandPreview {
     param(
+        [string]$ShutdownPath,
         [int]$DelaySeconds,
         [string]$Comment
     )
 
     $escapedComment = $Comment.Replace('"', '\"')
-    return "shutdown.exe /r /t $DelaySeconds /c `"$escapedComment`""
+    return "`"$ShutdownPath`" /r /t $DelaySeconds /c `"$escapedComment`""
 }
 
 function Invoke-RestartClientCommand {
@@ -883,7 +884,16 @@ function Invoke-RestartClientCommand {
 
     $reason = [string](Get-ObjectField -Object $Command -Name 'reason')
     $comment = New-RestartComment -Reason $reason
-    $preview = Format-RestartCommandPreview -DelaySeconds $delaySeconds -Comment $comment
+    $windowsRoot = $env:SystemRoot
+    if ([string]::IsNullOrWhiteSpace($windowsRoot)) {
+        $windowsRoot = $env:windir
+    }
+    if ([string]::IsNullOrWhiteSpace($windowsRoot)) {
+        $windowsRoot = 'C:\Windows'
+    }
+
+    $shutdownPath = Join-Path -Path $windowsRoot -ChildPath 'System32\shutdown.exe'
+    $preview = Format-RestartCommandPreview -ShutdownPath $shutdownPath -DelaySeconds $delaySeconds -Comment $comment
 
     if ($DryRun) {
         Write-AgentInfo "Dry-run command $($Command.id): would execute $preview"
@@ -896,10 +906,27 @@ function Invoke-RestartClientCommand {
     }
 
     try {
-        Start-Process `
-            -FilePath 'shutdown.exe' `
+        if (-not (Test-Path -LiteralPath $shutdownPath -PathType Leaf)) {
+            throw "shutdown.exe not found at expected path: $shutdownPath"
+        }
+
+        Write-AgentInfo "Executing command $($Command.id): $preview"
+
+        $process = Start-Process `
+            -FilePath $shutdownPath `
             -ArgumentList @('/r', '/t', [string]$delaySeconds, '/c', $comment) `
-            -WindowStyle Hidden
+            -WindowStyle Hidden `
+            -Wait `
+            -PassThru
+
+        if ($process.ExitCode -ne 0) {
+            return [pscustomobject]@{
+                Status = 'failed'
+                ResultMessage = $null
+                ErrorMessage = "shutdown.exe exited with code $($process.ExitCode)."
+                ExecutedAt = (Get-Date).ToUniversalTime().ToString('o')
+            }
+        }
 
         return [pscustomobject]@{
             Status = 'succeeded'
