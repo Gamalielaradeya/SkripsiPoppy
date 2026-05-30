@@ -912,18 +912,14 @@ function Invoke-RestartClientCommand {
 
         Write-AgentInfo "Executing command $($Command.id): $preview"
 
-        $process = Start-Process `
-            -FilePath $shutdownPath `
-            -ArgumentList @('/r', '/t', [string]$delaySeconds, '/c', $comment) `
-            -WindowStyle Hidden `
-            -Wait `
-            -PassThru
+        & $shutdownPath /r /t $delaySeconds /c $comment
+        $exitCode = $LASTEXITCODE
 
-        if ($process.ExitCode -ne 0) {
+        if ($exitCode -ne 0) {
             return [pscustomobject]@{
                 Status = 'failed'
                 ResultMessage = $null
-                ErrorMessage = "shutdown.exe exited with code $($process.ExitCode)."
+                ErrorMessage = "shutdown.exe exited with code $exitCode."
                 ExecutedAt = (Get-Date).ToUniversalTime().ToString('o')
             }
         }
