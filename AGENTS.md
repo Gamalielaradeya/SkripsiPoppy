@@ -83,11 +83,10 @@ Completed:
 - Milestone 8: Firebird Connectivity + Accurate Process Monitoring
 - Milestone 9: Accurate Firebird Audit Reader
 - Milestone 10: Contextual Alerts + Telegram
-
-Next:
 - Milestone 11: Remote Desktop + Remote Restart Manual
 
-Do not skip ahead to deployment before completing and committing Milestone 11.
+Next:
+- Milestone 12: Deployment, Testing, Real-Device UAT
 
 ---
 
