@@ -72,6 +72,17 @@
                             <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Recommended Action</div>
                             <div class="mt-1 text-slate-700">{{ $alert->recommended_action ?: '-' }}</div>
                         </div>
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Notification</div>
+                            <div class="mt-1">
+                                @if ($alert->latestNotification)
+                                    <x-status-badge :status="$alert->latestNotification->status" />
+                                    <div class="mt-1 text-xs text-slate-500">{{ $alert->latestNotification->channel }}</div>
+                                @else
+                                    <span class="text-slate-500">No notification record</span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </article>
             @endforeach

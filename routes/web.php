@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
     Route::get('/alerts/{id}', [AlertController::class, 'show'])->name('alerts.show');
+    Route::post('/alerts/{alert}/acknowledge', [AlertController::class, 'acknowledge'])->name('alerts.acknowledge');
+    Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])->name('alerts.resolve');
 
     Route::get('/remote-actions', [RemoteActionController::class, 'index'])->name('remote-actions.index');
     Route::get('/remote-actions/{id}', [RemoteActionController::class, 'show'])->name('remote-actions.show');

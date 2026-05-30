@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Alert extends Model
 {
@@ -73,8 +74,23 @@ class Alert extends Model
         return $this->hasMany(AlertNotification::class);
     }
 
+    public function latestNotification(): HasOne
+    {
+        return $this->hasOne(AlertNotification::class)->latestOfMany();
+    }
+
     public function incidents(): BelongsToMany
     {
         return $this->belongsToMany(Incident::class, 'incident_alerts')->withTimestamps();
+    }
+
+    public function acknowledgedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'acknowledged_by');
+    }
+
+    public function resolvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
     }
 }
