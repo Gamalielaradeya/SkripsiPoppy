@@ -82,11 +82,12 @@ Completed:
 - Milestone 7: RSyslog Structured Log Pipeline
 - Milestone 8: Firebird Connectivity + Accurate Process Monitoring
 - Milestone 9: Accurate Firebird Audit Reader
-
-Next:
 - Milestone 10: Contextual Alerts + Telegram
 
-Do not skip ahead to remote restart or deployment before completing and committing Milestone 10.
+Next:
+- Milestone 11: Remote Desktop + Remote Restart Manual
+
+Do not skip ahead to deployment before completing and committing Milestone 11.
 
 ---
 

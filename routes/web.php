@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
     Route::get('/devices/{id}', [DeviceController::class, 'show'])->name('devices.show');
+    Route::post('/devices/{device}/remote-actions/rdp', [RemoteActionController::class, 'storeRdp'])->name('devices.remote-actions.rdp');
+    Route::post('/devices/{device}/remote-actions/restart', [RemoteActionController::class, 'storeRestart'])->name('devices.remote-actions.restart');
 
     Route::get('/accurate-audit', [AccurateAuditController::class, 'index'])->name('accurate-audit.index');
     Route::get('/accurate-audit/{id}', [AccurateAuditController::class, 'show'])->name('accurate-audit.show');
@@ -38,6 +40,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])->name('alerts.resolve');
 
     Route::get('/remote-actions', [RemoteActionController::class, 'index'])->name('remote-actions.index');
+    Route::get('/remote-actions/{remoteAction}/rdp-file', [RemoteActionController::class, 'downloadRdpFile'])->name('remote-actions.rdp-file');
     Route::get('/remote-actions/{id}', [RemoteActionController::class, 'show'])->name('remote-actions.show');
 
     Route::get('/advanced-logs', [AdvancedLogController::class, 'index'])->name('advanced-logs.index');

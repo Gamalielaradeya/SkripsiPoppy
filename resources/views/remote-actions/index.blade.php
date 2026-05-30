@@ -4,30 +4,27 @@
 @section('description', 'Riwayat tindakan remote manual oleh administrator.')
 
 @section('content')
-    <x-filter-panel description="Filter visual untuk action type, status, device, admin, dan tanggal. Eksekusi remote belum dibuat pada milestone ini.">
+    <x-filter-panel description="Riwayat real dari Remote Desktop launcher dan Restart Client manual. Tidak ada data contoh.">
         <div class="grid gap-3 md:grid-cols-5">
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Action Type</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All actions</option>
-                </select>
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Target Device</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Device label">
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Requester</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Admin">
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Status</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>Pending / executed / failed</option>
-                </select>
-            </label>
-            <div class="flex items-end">
-                <x-action-button disabled class="w-full">Apply Filter</x-action-button>
+            <div class="rounded-md border border-slate-200 p-3">
+                <div class="text-xs font-medium text-slate-500">Total Records</div>
+                <div class="mt-1 text-lg font-semibold text-slate-950">{{ $remoteActions->total() }}</div>
+            </div>
+            <div class="rounded-md border border-slate-200 p-3">
+                <div class="text-xs font-medium text-slate-500">Pending</div>
+                <div class="mt-1 text-lg font-semibold text-slate-950">{{ $remoteActions->getCollection()->where('status', 'pending')->count() }}</div>
+            </div>
+            <div class="rounded-md border border-slate-200 p-3">
+                <div class="text-xs font-medium text-slate-500">Picked Up</div>
+                <div class="mt-1 text-lg font-semibold text-slate-950">{{ $remoteActions->getCollection()->where('status', 'picked_up')->count() }}</div>
+            </div>
+            <div class="rounded-md border border-slate-200 p-3">
+                <div class="text-xs font-medium text-slate-500">Succeeded</div>
+                <div class="mt-1 text-lg font-semibold text-slate-950">{{ $remoteActions->getCollection()->where('status', 'succeeded')->count() }}</div>
+            </div>
+            <div class="rounded-md border border-slate-200 p-3">
+                <div class="text-xs font-medium text-slate-500">Failed</div>
+                <div class="mt-1 text-lg font-semibold text-slate-950">{{ $remoteActions->getCollection()->where('status', 'failed')->count() }}</div>
             </div>
         </div>
     </x-filter-panel>
@@ -35,7 +32,7 @@
     @if ($remoteActions->isEmpty())
         <x-empty-state
             title="Belum ada tindakan remote."
-            message="Remote action execution belum diimplementasikan. Restart nanti wajib manual, confirmed, reasoned, dan audited."
+            message="Remote Desktop dan Restart Client akan muncul di sini setelah admin menjalankan action dari Device Detail."
         />
     @else
         <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -49,6 +46,7 @@
                             <th class="px-4 py-3">Status</th>
                             <th class="px-4 py-3">Requested Time</th>
                             <th class="px-4 py-3">Executed Time</th>
+                            <th class="px-4 py-3">Completed Time</th>
                             <th class="px-4 py-3">Reason</th>
                             <th class="px-4 py-3">Result</th>
                         </tr>
@@ -64,6 +62,7 @@
                                 <td class="px-4 py-3"><x-status-badge :status="$remoteAction->status" /></td>
                                 <td class="px-4 py-3">{{ $remoteAction->requested_at?->format('Y-m-d H:i') ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $remoteAction->executed_at?->format('Y-m-d H:i') ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $remoteAction->completed_at?->format('Y-m-d H:i') ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ \Illuminate\Support\Str::limit($remoteAction->reason ?? '-', 60) }}</td>
                                 <td class="px-4 py-3">{{ \Illuminate\Support\Str::limit($remoteAction->result_message ?? $remoteAction->error_message ?? '-', 60) }}</td>
                             </tr>

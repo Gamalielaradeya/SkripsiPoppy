@@ -2,6 +2,7 @@
     'variant' => 'secondary',
     'disabled' => false,
     'href' => null,
+    'type' => 'button',
 ])
 
 @php
@@ -21,7 +22,7 @@
         {{ $slot }}
     </a>
 @else
-    <button type="button" @disabled($disabled) {{ $attributes->merge(['class' => $classes.' '.($disabled ? $disabledClasses : '')]) }}>
+    <button type="{{ $type }}" @disabled($disabled) {{ $attributes->merge(['class' => $classes.' '.($disabled ? $disabledClasses : '')]) }}>
         {{ $slot }}
     </button>
 @endif

@@ -29,7 +29,7 @@ class DeviceController extends Controller
             'latestAccurateProcess' => $device?->latestAccurateProcessSnapshot()->first(),
             'deviceAlerts' => $device?->alerts()->latest('detected_at')->limit(5)->get() ?? collect(),
             'deviceIncidents' => $device?->incidents()->latest('detected_at')->limit(5)->get() ?? collect(),
-            'deviceRemoteActions' => $device?->remoteActions()->latest('requested_at')->limit(5)->get() ?? collect(),
+            'deviceRemoteActions' => $device?->remoteActions()->with('requester')->latest('requested_at')->limit(5)->get() ?? collect(),
         ]);
     }
 }

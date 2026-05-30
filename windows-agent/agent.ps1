@@ -821,6 +821,197 @@ function Invoke-AgentPost {
         -TimeoutSec $TimeoutSeconds
 }
 
+function Invoke-AgentGet {
+    param(
+        [string]$Uri,
+        [hashtable]$Headers,
+        [int]$TimeoutSeconds
+    )
+
+    return Invoke-RestMethod `
+        -Method Get `
+        -Uri $Uri `
+        -Headers $Headers `
+        -TimeoutSec $TimeoutSeconds
+}
+
+function New-RestartComment {
+    param(
+        [string]$Reason
+    )
+
+    $prefix = 'Restart requested by Centralized Log Monitoring Dashboard'
+    if ([string]::IsNullOrWhiteSpace($Reason)) {
+        return $prefix
+    }
+
+    $comment = "${prefix}: $Reason"
+    if ($comment.Length -gt 512) {
+        return $comment.Substring(0, 512)
+    }
+
+    return $comment
+}
+
+function Format-RestartCommandPreview {
+    param(
+        [int]$DelaySeconds,
+        [string]$Comment
+    )
+
+    $escapedComment = $Comment.Replace('"', '\"')
+    return "shutdown.exe /r /t $DelaySeconds /c `"$escapedComment`""
+}
+
+function Invoke-RestartClientCommand {
+    param(
+        [object]$Command,
+        [object]$Config,
+        [switch]$DryRun
+    )
+
+    $payload = Get-ObjectField -Object $Command -Name 'payload'
+    $delay = Get-ObjectField -Object $payload -Name 'restart_delay_seconds'
+    if ($null -eq $delay) {
+        $delay = Get-ConfigValue -Config $Config -Name 'restart_delay_seconds' -DefaultValue 30
+    }
+
+    $delaySeconds = [int]$delay
+    if ($delaySeconds -lt 0) {
+        $delaySeconds = 0
+    }
+
+    $reason = [string](Get-ObjectField -Object $Command -Name 'reason')
+    $comment = New-RestartComment -Reason $reason
+    $preview = Format-RestartCommandPreview -DelaySeconds $delaySeconds -Comment $comment
+
+    if ($DryRun) {
+        Write-AgentInfo "Dry-run command $($Command.id): would execute $preview"
+        return [pscustomobject]@{
+            Status = 'succeeded'
+            ResultMessage = "Dry run only. Would execute: $preview"
+            ErrorMessage = $null
+            ExecutedAt = (Get-Date).ToUniversalTime().ToString('o')
+        }
+    }
+
+    try {
+        Start-Process `
+            -FilePath 'shutdown.exe' `
+            -ArgumentList @('/r', '/t', [string]$delaySeconds, '/c', $comment) `
+            -WindowStyle Hidden
+
+        return [pscustomobject]@{
+            Status = 'succeeded'
+            ResultMessage = "Restart scheduled in $delaySeconds seconds."
+            ErrorMessage = $null
+            ExecutedAt = (Get-Date).ToUniversalTime().ToString('o')
+        }
+    } catch {
+        return [pscustomobject]@{
+            Status = 'failed'
+            ResultMessage = $null
+            ErrorMessage = $_.Exception.Message
+            ExecutedAt = (Get-Date).ToUniversalTime().ToString('o')
+        }
+    }
+}
+
+function Send-CommandResult {
+    param(
+        [string]$ApiBaseUrl,
+        [string]$AgentId,
+        [hashtable]$Headers,
+        [object]$Command,
+        [object]$Result,
+        [int]$TimeoutSeconds
+    )
+
+    $commandId = Get-ObjectField -Object $Command -Name 'id'
+    $resultPayload = [ordered]@{
+        agent_id = $AgentId
+        status = $Result.Status
+        result_message = $Result.ResultMessage
+        error_message = $Result.ErrorMessage
+        executed_at = $Result.ExecutedAt
+    }
+
+    Invoke-AgentPost `
+        -Uri "$ApiBaseUrl/commands/$commandId/result" `
+        -Headers $Headers `
+        -Payload $resultPayload `
+        -TimeoutSeconds $TimeoutSeconds | Out-Null
+}
+
+function Invoke-AgentCommandPolling {
+    param(
+        [object]$Config,
+        [string]$ApiBaseUrl,
+        [string]$AgentId,
+        [hashtable]$Headers,
+        [int]$TimeoutSeconds,
+        [switch]$DryRun
+    )
+
+    $enabled = [bool](Get-ConfigValue -Config $Config -Name 'command_poll_enabled' -DefaultValue $false)
+    if (-not $enabled) {
+        return
+    }
+
+    $pollInterval = [int](Get-ConfigValue -Config $Config -Name 'command_poll_interval_seconds' -DefaultValue 30)
+    if ($pollInterval -lt 1) {
+        $pollInterval = 1
+    }
+
+    $agentIdParam = [System.Uri]::EscapeDataString($AgentId)
+    $pendingUri = "$ApiBaseUrl/commands/pending?agent_id=$agentIdParam"
+
+    if ($DryRun) {
+        Write-AgentInfo "Command polling dry run enabled. Would GET $pendingUri every $pollInterval seconds when scheduled."
+        return
+    }
+
+    try {
+        $response = Invoke-AgentGet `
+            -Uri $pendingUri `
+            -Headers $Headers `
+            -TimeoutSeconds $TimeoutSeconds
+    } catch {
+        Write-AgentInfo "Command polling failed: $($_.Exception.Message)"
+        return
+    }
+
+    $commands = @($response.commands)
+    if ($commands.Count -eq 0) {
+        Write-AgentInfo "Command polling completed. No pending commands."
+        return
+    }
+
+    foreach ($command in $commands) {
+        $actionType = [string](Get-ObjectField -Object $command -Name 'action_type')
+        if ($actionType -ne 'RESTART_CLIENT') {
+            Write-AgentInfo "Ignoring unsupported command type: $actionType"
+            continue
+        }
+
+        $result = Invoke-RestartClientCommand -Command $command -Config $Config
+
+        try {
+            Send-CommandResult `
+                -ApiBaseUrl $ApiBaseUrl `
+                -AgentId $AgentId `
+                -Headers $Headers `
+                -Command $command `
+                -Result $result `
+                -TimeoutSeconds $TimeoutSeconds
+
+            Write-AgentInfo "Command $($command.id) result sent. Status: $($result.Status)"
+        } catch {
+            Write-AgentInfo "Failed to report command $($command.id) result: $($_.Exception.Message)"
+        }
+    }
+}
+
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
@@ -858,6 +1049,13 @@ try {
         ConvertTo-AgentJson -Payload $payload | Write-Host
 
         Send-AgentSyslogMessages -Config $config -Payload ([pscustomobject]$payload) -DryRun
+        Invoke-AgentCommandPolling `
+            -Config $config `
+            -ApiBaseUrl $apiBaseUrl `
+            -AgentId $agentId `
+            -Headers @{} `
+            -TimeoutSeconds $timeoutSeconds `
+            -DryRun
 
         Write-AgentInfo "Authorization: Bearer <redacted>"
         exit 0
@@ -893,6 +1091,12 @@ try {
 
     Write-AgentInfo "Heartbeat sent. Status: $($heartbeatResponse.status)"
     Send-AgentSyslogMessages -Config $config -Payload ([pscustomobject]$payload)
+    Invoke-AgentCommandPolling `
+        -Config $config `
+        -ApiBaseUrl $apiBaseUrl `
+        -AgentId $agentId `
+        -Headers $headers `
+        -TimeoutSeconds $timeoutSeconds
     exit 0
 } catch {
     Write-Error $_.Exception.Message

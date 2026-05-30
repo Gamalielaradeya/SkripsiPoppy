@@ -92,11 +92,11 @@
             </dl>
         </x-info-panel>
 
-        <x-info-panel title="Remote Actions" description="Manual remote desktop/restart policy. No execution logic in this milestone.">
+        <x-info-panel title="Remote Actions" description="Manual remote desktop/restart policy. Restart runs only through authorized agent polling.">
             <dl class="space-y-3 text-sm">
                 <div class="flex items-center justify-between gap-4">
                     <dt class="text-slate-500">Remote restart</dt>
-                    <dd><x-status-badge status="pending" /></dd>
+                    <dd><x-status-badge status="available" /></dd>
                 </div>
                 <div class="flex items-center justify-between gap-4">
                     <dt class="text-slate-500">Reason required</dt>

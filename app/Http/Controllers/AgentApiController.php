@@ -7,6 +7,7 @@ use App\Models\AgentCredential;
 use App\Models\Device;
 use App\Models\DeviceTelemetry;
 use App\Models\NetworkCheck;
+use App\Models\RemoteAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -170,9 +171,108 @@ class AgentApiController extends Controller
             'last_used_at' => now(),
         ])->save();
 
+        /** @var Device $device */
+        $device = $auth['device'];
+
+        $commands = DB::transaction(function () use ($device) {
+            RemoteAction::query()
+                ->where('device_id', $device->id)
+                ->where('status', RemoteAction::STATUS_PENDING)
+                ->whereNotNull('expires_at')
+                ->where('expires_at', '<=', now())
+                ->update(['status' => RemoteAction::STATUS_EXPIRED]);
+
+            $actions = RemoteAction::query()
+                ->where('device_id', $device->id)
+                ->where('action_type', RemoteAction::ACTION_RESTART_CLIENT)
+                ->where('status', RemoteAction::STATUS_PENDING)
+                ->where(function ($query): void {
+                    $query->whereNull('expires_at')
+                        ->orWhere('expires_at', '>', now());
+                })
+                ->orderBy('requested_at')
+                ->lockForUpdate()
+                ->get();
+
+            $actions->each(function (RemoteAction $action): void {
+                $action->forceFill([
+                    'status' => RemoteAction::STATUS_PICKED_UP,
+                    'picked_up_at' => now(),
+                ])->save();
+            });
+
+            return $actions->map(fn (RemoteAction $action): array => [
+                'id' => $action->id,
+                'action_type' => $action->action_type,
+                'status' => $action->status,
+                'reason' => $action->reason,
+                'payload' => $action->payload ?? [],
+                'requested_at' => $action->requested_at?->toIso8601String(),
+                'expires_at' => $action->expires_at?->toIso8601String(),
+            ])->values();
+        });
+
         return response()->json([
             'status' => 'ok',
-            'commands' => [],
+            'commands' => $commands,
+        ]);
+    }
+
+    public function commandResult(Request $request, RemoteAction $remoteAction): JsonResponse
+    {
+        $validated = $request->validate([
+            'agent_id' => ['required', 'string', 'max:64'],
+            'status' => ['required', Rule::in([RemoteAction::STATUS_SUCCEEDED, RemoteAction::STATUS_FAILED])],
+            'result_message' => ['nullable', 'string', 'max:1000'],
+            'error_message' => ['nullable', 'string', 'max:1000'],
+            'executed_at' => ['nullable', 'date'],
+        ]);
+
+        $auth = $this->authenticateAgent($request, $validated['agent_id']);
+
+        if (! $auth['ok']) {
+            return response()->json([
+                'message' => $auth['message'],
+            ], 401);
+        }
+
+        /** @var Device $device */
+        $device = $auth['device'];
+
+        if ((int) $remoteAction->device_id !== (int) $device->id) {
+            return response()->json([
+                'message' => 'Command does not belong to this agent.',
+            ], 403);
+        }
+
+        if ($remoteAction->action_type !== RemoteAction::ACTION_RESTART_CLIENT) {
+            return response()->json([
+                'message' => 'Unsupported command type.',
+            ], 422);
+        }
+
+        /** @var AgentCredential $credential */
+        $credential = $auth['credential'];
+        $credential->forceFill([
+            'last_used_at' => now(),
+        ])->save();
+
+        $remoteAction->forceFill([
+            'status' => $validated['status'],
+            'executed_at' => $validated['executed_at'] ?? now(),
+            'completed_at' => now(),
+            'result_message' => $validated['result_message'] ?? null,
+            'error_message' => $validated['error_message'] ?? null,
+        ])->save();
+
+        return response()->json([
+            'status' => 'result_recorded',
+            'command' => [
+                'id' => $remoteAction->id,
+                'action_type' => $remoteAction->action_type,
+                'status' => $remoteAction->status,
+                'completed_at' => $remoteAction->completed_at?->toIso8601String(),
+            ],
         ]);
     }
 

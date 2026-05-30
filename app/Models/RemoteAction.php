@@ -12,6 +12,14 @@ class RemoteAction extends Model
     public const ACTION_PING_TEST = 'PING_TEST';
     public const ACTION_RESTART_AGENT = 'RESTART_AGENT';
 
+    public const STATUS_REQUESTED = 'requested';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PICKED_UP = 'picked_up';
+    public const STATUS_SUCCEEDED = 'succeeded';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_EXPIRED = 'expired';
+
     protected $fillable = [
         'device_id',
         'requested_by',

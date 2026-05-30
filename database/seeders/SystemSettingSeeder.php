@@ -24,6 +24,7 @@ class SystemSettingSeeder extends Seeder
             ['group' => 'telegram', 'key' => 'telegram_bot_token_env_key', 'value' => 'TELEGRAM_BOT_TOKEN', 'data_type' => 'string', 'description' => 'Environment key name for Telegram bot token; no secret stored here.', 'is_sensitive' => true],
             ['group' => 'security', 'key' => 'raw_log_retention_days', 'value' => '30', 'data_type' => 'integer', 'description' => 'Future retention window for Advanced Logs data.', 'is_sensitive' => false],
             ['group' => 'remote_action', 'key' => 'restart_requires_reason', 'value' => 'true', 'data_type' => 'boolean', 'description' => 'Remote restart must remain manual, reasoned, and audited.', 'is_sensitive' => false],
+            ['group' => 'remote_action', 'key' => 'command_expiry_minutes', 'value' => '10', 'data_type' => 'integer', 'description' => 'Short TTL for pending Windows Agent commands.', 'is_sensitive' => false],
         ];
 
         foreach ($settings as $setting) {

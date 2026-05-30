@@ -1,6 +1,6 @@
 # Windows Agent PowerShell MVP
 
-PowerShell agent for Centralized Log Monitoring Dashboard. Milestone 5 registered real Windows devices and sent heartbeat metadata. Milestone 6 adds real CPU, RAM, and disk telemetry to the heartbeat API payload. Milestone 7 adds optional structured syslog output to RSyslog for Advanced Logs. Milestone 8 adds Firebird TCP connectivity and Accurate process checks.
+PowerShell agent for Centralized Log Monitoring Dashboard. Milestone 5 registered real Windows devices and sent heartbeat metadata. Milestone 6 adds real CPU, RAM, and disk telemetry to the heartbeat API payload. Milestone 7 adds optional structured syslog output to RSyslog for Advanced Logs. Milestone 8 adds Firebird TCP connectivity and Accurate process checks. Milestone 11 adds optional command polling for manual Restart Client actions.
 
 ## Scope
 
@@ -19,6 +19,9 @@ Implemented:
 - Optional Firebird TCP connectivity check to configured host/port, default port `3051`
 - Optional Accurate process detection for configured executable name, default `accurate.exe`
 - Optional structured syslog messages for `network-monitor` and `accurate-process-monitor`
+- Optional command polling through `GET /api/agent/commands/pending`
+- Manual `RESTART_CLIENT` execution through `shutdown.exe /r /t <delay> /c "<reason>"`
+- Command result reporting through `POST /api/agent/commands/{id}/result`
 - `-DryRun` mode
 
 Not implemented in this milestone:
@@ -27,8 +30,10 @@ Not implemented in this milestone:
 - Accurate Firebird Audit Reader
 - Telegram notifications
 - Alert detection
-- Command polling
-- Remote restart
+- Arbitrary shell commands
+- File transfer
+- Screen sharing
+- Auto restart from alerts
 
 ## Runtime Files
 
@@ -77,6 +82,9 @@ Copy-Item "C:\ProgramData\CentralizedLogMonitoring\agent\config.example.json" "C
   "accurate_process_check_enabled": false,
   "accurate_process_name": "accurate.exe",
   "request_timeout_seconds": 15,
+  "command_poll_enabled": false,
+  "command_poll_interval_seconds": 30,
+  "restart_delay_seconds": 30,
   "syslog_enabled": false,
   "syslog_host": "10.147.20.5",
   "syslog_port": 5514,
@@ -96,6 +104,10 @@ Set `accurate_process_check_enabled` to `true` to detect the configured Windows 
 Set `syslog_enabled` to `true` only after the VPS RSyslog receiver is ready. Use the VPS ZeroTier IP for `syslog_host`. The PowerShell MVP supports UDP syslog only, so keep `syslog_protocol` as `udp`.
 
 Syslog messages do not include the local agent token or any API secret.
+
+Set `command_poll_enabled` to `true` only after the dashboard API is reachable and the device is registered. The agent only supports `RESTART_CLIENT`; unsupported command types are ignored. Remote Desktop does not use command polling because RDP is launched from the admin dashboard/client.
+
+`restart_delay_seconds` controls the Windows shutdown delay. Keep a short delay such as `30` seconds for real-device UAT so the agent can report the result before Windows restarts.
 
 ## Dry Run
 
@@ -133,6 +145,8 @@ network-monitor: event_type=firebird_connectivity agent_id=... target_host=... t
 accurate-process-monitor: event_type=accurate_process agent_id=... process_name=accurate.exe process_status=running
 ```
 
+When `command_poll_enabled=true`, dry run prints the pending-command URL it would call. It does not fetch commands, does not report results, and does not restart Windows.
+
 ## Real Run
 
 Run once manually:
@@ -144,6 +158,14 @@ powershell.exe -ExecutionPolicy Bypass -File "C:\ProgramData\CentralizedLogMonit
 First real run registers the agent if `agent-token.txt` is missing. Later runs reuse the stored token and send heartbeat.
 
 If syslog is enabled, the same run sends structured UDP syslog messages to the configured RSyslog host after the heartbeat API succeeds.
+
+If command polling is enabled, the same run polls for pending commands after heartbeat/syslog. Only dashboard-created `RESTART_CLIENT` commands for the same authenticated `agent_id` can be returned by the API. The agent schedules restart with:
+
+```powershell
+shutdown.exe /r /t <delay> /c "<reason>"
+```
+
+No SSH, WinRM, RSyslog command delivery, stored Windows credentials, or arbitrary command execution is used.
 
 ## Scheduled Task Example
 
@@ -223,6 +245,8 @@ php artisan rsyslog:parse
 
 10. If Accurate process check is enabled, confirm the heartbeat payload includes `accurate_process.process_status` and, when available, PID, owner, and path.
 
+11. If command polling is enabled, create a manual Restart Client action from Device Detail, run the agent once, and confirm the Remote Action changes from `pending` to `picked_up`, then `succeeded` or `failed`.
+
 ## Troubleshooting
 
 - If registration succeeds but `agent-token.txt` is deleted, the server may not return another token for the same `agent_id`. Regenerate server credential or restore the local token file.
@@ -233,3 +257,5 @@ php artisan rsyslog:parse
 - If Firebird check is skipped, verify `firebird_check_enabled=true` and `firebird_host` is not empty.
 - If Firebird status is `timeout` or `failed`, verify ZeroTier, firewall, and Firebird port access from the Windows client.
 - If Accurate owner or path is empty, run PowerShell with enough permission or accept null fields; the agent does not fail heartbeat for access denied process metadata.
+- If command polling returns no commands, verify the remote action is `pending`, not expired, and belongs to the same registered `agent_id`.
+- If restart command fails, check Windows policy/permissions; the agent reports the error message to the result API without printing token values.

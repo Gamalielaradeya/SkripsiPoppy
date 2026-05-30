@@ -34,4 +34,9 @@ return [
         'firebird_charset' => env('ACCURATE_FIREBIRD_CHARSET', 'NONE'),
         'sync_limit' => (int) env('ACCURATE_AUDIT_SYNC_LIMIT', 100),
     ],
+
+    'remote_action' => [
+        'command_expiry_minutes' => (int) env('REMOTE_ACTION_COMMAND_EXPIRY_MINUTES', 10),
+        'restart_delay_seconds' => (int) env('REMOTE_RESTART_DELAY_SECONDS', 30),
+    ],
 ];
