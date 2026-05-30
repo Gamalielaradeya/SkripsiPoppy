@@ -84,7 +84,7 @@
                                     <div class="mt-1 text-xs text-slate-500">{{ $networkLatency !== null ? number_format($networkLatency, 0).' ms' : '-' }}</div>
                                 </td>
                                 <td class="px-4 py-3"><x-status-badge :status="$accurateProcessStatus" /></td>
-                                <td class="px-4 py-3"><x-status-badge :status="$device->status" /></td>
+                                <td class="px-4 py-3"><x-status-badge :status="$device->display_status" /></td>
                                 <td class="px-4 py-3">{{ $device->last_seen_at?->diffForHumans() ?? '-' }}</td>
                                 <td class="px-4 py-3">
                                     <div class="flex justify-end gap-2">

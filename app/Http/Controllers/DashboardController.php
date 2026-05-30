@@ -12,9 +12,11 @@ class DashboardController extends Controller
 {
     public function __invoke(): View
     {
+        $devices = Device::query()->get();
+
         return view('dashboard.index', [
-            'totalDevices' => Device::query()->count(),
-            'onlineDevices' => Device::query()->where('agent_status', 'online')->count(),
+            'totalDevices' => $devices->count(),
+            'onlineDevices' => $devices->where('display_status', 'online')->count(),
             'firebirdConnectedDevices' => Device::query()->where('firebird_connection_status', 'connected')->count(),
             'accurateRunningDevices' => Device::query()->where('accurate_status', 'running')->count(),
             'openAlerts' => Alert::query()->where('status', 'open')->count(),

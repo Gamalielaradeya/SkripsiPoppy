@@ -28,7 +28,7 @@
                             <h2 class="text-lg font-semibold text-slate-950">{{ $device->display_name }}</h2>
                             <p class="mt-1 font-mono text-xs text-slate-500">{{ $device->agent_id }}</p>
                         </div>
-                        <x-status-badge :status="$device->status" />
+                        <x-status-badge :status="$device->display_status" />
                     </div>
 
                     <dl class="mt-6 grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-4">

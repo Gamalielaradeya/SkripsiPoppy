@@ -12,7 +12,7 @@
     @endphp
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <x-status-card title="Device Online" :value="$onlineDevices . ' / ' . $totalDevices" :status="$deviceStatus" href="{{ route('devices.index') }}" description="Windows Agent heartbeat yang sudah tersimpan." />
+        <x-status-card title="Device Online" :value="$onlineDevices . ' / ' . $totalDevices" :status="$deviceStatus" href="{{ route('devices.index') }}" description="Status operasional dihitung dari waktu heartbeat terakhir." />
         <x-status-card title="Firebird Connectivity" :value="$firebirdConnectedDevices . ' / ' . $totalDevices" :status="$firebirdStatus" href="{{ route('devices.index') }}" description="Status koneksi client ke Firebird dari data real." />
         <x-status-card title="Accurate Active" :value="$accurateRunningDevices . ' / ' . $totalDevices" :status="$accurateStatus" href="{{ route('devices.index') }}" description="Status proses Accurate pada device terdaftar." />
         <x-status-card title="Open Alerts" :value="$openAlerts" :status="$alertStatus" href="{{ route('alerts.index') }}" description="Alert terbuka yang sudah tersimpan." />
@@ -72,7 +72,7 @@
                                         <div class="mt-1 text-xs text-slate-500">{{ $networkLatency !== null ? number_format($networkLatency, 0).' ms' : '-' }}</div>
                                     </td>
                                     <td class="px-3 py-3"><x-status-badge :status="$accurateProcessStatus" /></td>
-                                    <td class="px-3 py-3"><x-status-badge :status="$device->status" /></td>
+                                    <td class="px-3 py-3"><x-status-badge :status="$device->display_status" /></td>
                                     <td class="px-3 py-3">
                                         <x-action-button :href="route('devices.show', $device)" variant="secondary">Detail</x-action-button>
                                     </td>
