@@ -36,6 +36,9 @@ return [
     ],
 
     'remote_action' => [
+        'agent_api_enabled' => (bool) env('AGENT_API_ENABLED', false),
+        'restart_enabled' => (bool) env('REMOTE_RESTART_ENABLED', false),
+        'restart_require_reason' => (bool) env('REMOTE_RESTART_REQUIRE_REASON', true),
         'command_expiry_minutes' => (int) env('REMOTE_ACTION_COMMAND_EXPIRY_MINUTES', 10),
         'restart_delay_seconds' => (int) env('REMOTE_RESTART_DELAY_SECONDS', 30),
     ],
