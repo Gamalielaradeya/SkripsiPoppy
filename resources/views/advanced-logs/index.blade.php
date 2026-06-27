@@ -45,7 +45,7 @@
                 <input name="keyword" value="{{ $filters['keyword'] ?? '' }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Raw/parsed">
             </label>
             <div class="flex items-end gap-2 md:col-span-6">
-                <x-action-button class="w-full md:w-auto">Apply</x-action-button>
+                <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800 md:w-auto">Terapkan Filter</button>
                 <a href="{{ route('advanced-logs.index') }}" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
             </div>
         </form>

@@ -34,7 +34,7 @@
                     <input name="keyword" value="{{ request('keyword') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Judul, ringkasan, atau aturan">
                 </label>
                 <div class="flex items-end gap-2">
-                    <x-action-button class="w-full">Apply Filter</x-action-button>
+                    <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Terapkan Filter</button>
                     <a href="{{ route('alerts.index') }}" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
                 </div>
             </form>

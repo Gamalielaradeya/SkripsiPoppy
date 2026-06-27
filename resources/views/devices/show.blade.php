@@ -139,23 +139,29 @@
             <div class="space-y-5">
                 <x-info-panel title="Tindakan" description="Remote Desktop dibuka dari perangkat admin. Restart dikirim lewat polling Windows Agent.">
                     <div class="space-y-3">
-                        <form method="POST" action="{{ route('devices.remote-actions.rdp', $device) }}">
-                            @csrf
-                            <x-action-button type="submit" :disabled="! $rdpTargetIp" class="w-full">Remote Desktop</x-action-button>
-                        </form>
-
-                        @if ($rdpTargetIp)
+                        {{-- RDP: butuh online + IP --}}
+                        @if ($device->display_status === 'online' && $rdpTargetIp)
+                            <form method="POST" action="{{ route('devices.remote-actions.rdp', $device) }}">
+                                @csrf
+                                <x-action-button type="submit" class="w-full">Remote Desktop</x-action-button>
+                            </form>
                             <div class="rounded-md bg-slate-50 p-3 text-xs text-slate-600">
                                 <div class="font-medium text-slate-700">Target launcher</div>
                                 <div class="mt-1 font-mono text-slate-900">mstsc /v:{{ $rdpTargetIp }}</div>
                                 <div class="mt-1">Kredensial tidak disimpan atau disertakan.</div>
                             </div>
                         @else
+                            <x-action-button disabled class="w-full">Remote Desktop</x-action-button>
                             <div class="rounded-md bg-amber-50 p-3 text-xs text-amber-800">
-                                Remote Desktop tidak tersedia karena perangkat tidak memiliki IP ZeroTier atau IP lokal.
+                                @if ($device->display_status !== 'online')
+                                    Remote Desktop tidak tersedia karena perangkat sedang offline.
+                                @else
+                                    Remote Desktop tidak tersedia karena perangkat tidak memiliki IP ZeroTier atau IP lokal.
+                                @endif
                             </div>
                         @endif
 
+                        {{-- Ping: butuh online + IP --}}
                         @if ($device->display_status === 'online' && $pingTargetIp)
                             <form method="POST" action="{{ route('devices.remote-actions.ping', $device) }}">
                                 @csrf
@@ -165,7 +171,8 @@
                             <x-action-button disabled class="w-full">Ping Test</x-action-button>
                         @endif
 
-                        @if (config('monitoring.remote_action.restart_enabled', false))
+                        {{-- Restart: butuh online + config enabled --}}
+                        @if ($device->display_status === 'online' && config('monitoring.remote_action.restart_enabled', false))
                             <x-confirm-modal
                                 title="Konfirmasi Restart Klien"
                                 confirmLabel="Kirim Perintah Restart"
@@ -198,7 +205,11 @@
                         @else
                             <x-action-button disabled variant="danger" class="w-full">Restart Klien</x-action-button>
                             <div class="rounded-md bg-amber-50 p-3 text-xs text-amber-800">
-                                Restart tidak tersedia karena fitur dimatikan atau perangkat offline.
+                                @if ($device->display_status !== 'online')
+                                    Restart tidak tersedia karena perangkat sedang offline.
+                                @else
+                                    Restart tidak tersedia karena fitur dimatikan di Pengaturan.
+                                @endif
                             </div>
                         @endif
                     </div>
