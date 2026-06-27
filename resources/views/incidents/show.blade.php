@@ -29,7 +29,7 @@
                             <form method="POST" action="{{ route('incidents.acknowledge', $incident) }}">
                                 @csrf
                                 <button type="submit" class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
-                                    Akui
+                                    Acknowledge
                                 </button>
                             </form>
                         @endif
@@ -38,14 +38,14 @@
                             <form method="POST" action="{{ route('incidents.resolve', $incident) }}">
                                 @csrf
                                 <button type="submit" class="inline-flex items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">
-                                    Selesaikan
+                                    Resolve
                                 </button>
                             </form>
                         @endif
 
                         @if ($incident->device)
                             <a href="{{ route('devices.show', $incident->device) }}" class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-sky-700 transition hover:bg-sky-50">
-                                Buka Perangkat
+                                Open Device
                             </a>
                         @endif
                     </div>
@@ -92,9 +92,9 @@
                             <dd class="text-right font-medium text-slate-900">
                                 @if ($incident->detected_at)
                                     @if ($incident->status === 'resolved' && $incident->resolved_at)
-                                        {{ $incident->detected_at->diffForHumans($incident->resolved_at, ['parts' => 2]) }}
+                                        {{ $incident->detected_at->copy()->setLocale('en')->diffForHumans($incident->resolved_at, ['parts' => 2]) }}
                                     @else
-                                        {{ $incident->detected_at->diffForHumans(now(), ['parts' => 2]) }}
+                                        {{ $incident->detected_at->copy()->setLocale('en')->diffForHumans(now(), ['parts' => 2]) }}
                                     @endif
                                 @else
                                     -
