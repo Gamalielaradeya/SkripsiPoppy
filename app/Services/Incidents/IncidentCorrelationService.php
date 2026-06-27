@@ -21,15 +21,24 @@ class IncidentCorrelationService
     private const DEVICE_SLOW = 'DEVICE_SLOW';
 
     /**
+     * Maximum minutes between alerts for them to be considered part of the same incident.
+     */
+    private const TIME_WINDOW_MINUTES = 15;
+
+    /**
      * @return array{created: int, updated: int}
      */
     public function correlate(): array
     {
         $summary = ['created' => 0, 'updated' => 0];
 
+        $now = now();
+        $windowStart = $now->copy()->subMinutes(self::TIME_WINDOW_MINUTES);
+
         $openAlerts = Alert::query()
             ->whereIn('status', ['open'])
             ->whereNotNull('device_id')
+            ->where('detected_at', '>=', $windowStart)
             ->with('device')
             ->get();
 
