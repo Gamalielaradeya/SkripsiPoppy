@@ -4,33 +4,41 @@
 @section('description', 'Peringatan kontekstual dengan target, evidence, impact, dan recommended action.')
 
 @section('content')
-    <x-filter-panel description="Filter visual untuk severity, target, status, dan waktu deteksi. Belum ada logic filter kompleks pada milestone ini.">
-        <div class="grid gap-3 md:grid-cols-5">
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Severity</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All severity</option>
-                </select>
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Target</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Device/server">
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Status</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>Open / acknowledged / resolved</option>
-                </select>
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Keyword</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Evidence or rule">
-            </label>
-            <div class="flex items-end">
-                <x-action-button disabled class="w-full">Apply Filter</x-action-button>
-            </div>
-        </div>
-    </x-filter-panel>
+    <x-filter-panel description="Filter alert berdasarkan severity, status, dan keyword.">
+            <form method="GET" action="{{ route('alerts.index') }}" class="grid gap-3 md:grid-cols-5">
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Severity</span>
+                    <select name="severity" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                        <option value="">All severity</option>
+                        <option value="info" @selected(request('severity') === 'info')>Info</option>
+                        <option value="warning" @selected(request('severity') === 'warning')>Warning</option>
+                        <option value="error" @selected(request('severity') === 'error')>Error</option>
+                        <option value="critical" @selected(request('severity') === 'critical')>Critical</option>
+                    </select>
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Status</span>
+                    <select name="status" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                        <option value="">All</option>
+                        <option value="open" @selected(request('status') === 'open')>Open</option>
+                        <option value="acknowledged" @selected(request('status') === 'acknowledged')>Acknowledged</option>
+                        <option value="resolved" @selected(request('status') === 'resolved')>Resolved</option>
+                    </select>
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Target</span>
+                    <input name="target" value="{{ request('target') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Device/server">
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Keyword</span>
+                    <input name="keyword" value="{{ request('keyword') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Evidence or rule">
+                </label>
+                <div class="flex items-end gap-2">
+                    <x-action-button class="w-full">Apply Filter</x-action-button>
+                    <a href="{{ route('alerts.index') }}" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
+                </div>
+            </form>
+        </x-filter-panel>
 
     @if ($alerts->isEmpty())
         <x-empty-state

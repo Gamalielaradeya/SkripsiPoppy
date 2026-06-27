@@ -4,34 +4,46 @@
 @section('description', 'Daftar laptop Windows pengguna Accurate 5 yang terhubung ke sistem monitoring.')
 
 @section('content')
-    <x-filter-panel description="Filter ini disiapkan untuk pencarian device setelah data telemetry stabil. Saat ini tabel memakai record database yang ada.">
-        <div class="grid gap-3 md:grid-cols-5">
+    <x-filter-panel description="Cari dan filter device berdasarkan status, konektivitas Firebird, dan proses Accurate.">
+        <form method="GET" action="{{ route('devices.index') }}" class="grid gap-3 md:grid-cols-5">
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Search</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Label, hostname, user, IP">
+                <input name="search" value="{{ request('search') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Label, hostname, user, IP">
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Status</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All status</option>
+                <select name="status" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All status</option>
+                    <option value="online" @selected(request('status') === 'online')>Online</option>
+                    <option value="warning" @selected(request('status') === 'warning')>Warning</option>
+                    <option value="error" @selected(request('status') === 'error')>Error</option>
+                    <option value="offline" @selected(request('status') === 'offline')>Offline</option>
                 </select>
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Firebird</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All connections</option>
+                <select name="firebird" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All connections</option>
+                    <option value="connected" @selected(request('firebird') === 'connected')>Connected</option>
+                    <option value="slow" @selected(request('firebird') === 'slow')>Slow</option>
+                    <option value="timeout" @selected(request('firebird') === 'timeout')>Timeout</option>
+                    <option value="refused" @selected(request('firebird') === 'refused')>Refused</option>
                 </select>
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Accurate</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All process states</option>
+                <select name="accurate" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All process states</option>
+                    <option value="running" @selected(request('accurate') === 'running')>Running</option>
+                    <option value="not_running" @selected(request('accurate') === 'not_running')>Not Running</option>
+                    <option value="unknown" @selected(request('accurate') === 'unknown')>Unknown</option>
                 </select>
             </label>
-            <div class="flex items-end">
-                <x-action-button disabled class="w-full">Apply Filter</x-action-button>
+            <div class="flex items-end gap-2">
+                <x-action-button class="w-full">Apply Filter</x-action-button>
+                <a href="{{ route('devices.index') }}" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
             </div>
-        </div>
+        </form>
     </x-filter-panel>
 
     @if ($devices->isEmpty())
@@ -71,7 +83,7 @@
                                     <a href="{{ route('devices.show', $device) }}" class="font-medium text-slate-950 hover:text-sky-700">
                                         {{ $device->display_name }}
                                     </a>
-                                    <div class="font-mono text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($device->agent_id, 18) }}</div>
+                                    <div class="font-mono text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($device->agent_id, 10, '...') }}</div>
                                 </td>
                                 <td class="px-4 py-3">{{ $device->hostname }}</td>
                                 <td class="px-4 py-3">{{ $device->windows_user ?? '-' }}</td>
@@ -89,8 +101,19 @@
                                 <td class="px-4 py-3">
                                     <div class="flex justify-end gap-2">
                                         <x-action-button :href="route('devices.show', $device)" variant="secondary">Detail</x-action-button>
-                                        <x-action-button disabled variant="ghost">RDP</x-action-button>
-                                        <x-action-button disabled variant="danger">Restart</x-action-button>
+                                        @if ($device->display_status === 'online' && ($device->ip_zerotier || $device->ip_local))
+                                            <form method="POST" action="{{ route('devices.remote-actions.rdp', $device) }}" class="contents">
+                                                @csrf
+                                                <x-action-button type="submit" variant="ghost">RDP</x-action-button>
+                                            </form>
+                                        @else
+                                            <x-action-button disabled variant="ghost">RDP</x-action-button>
+                                        @endif
+                                        @if ($device->display_status === 'online')
+                                            <a href="{{ route('devices.show', $device) }}#restart" class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">Restart</a>
+                                        @else
+                                            <x-action-button disabled variant="danger">Restart</x-action-button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

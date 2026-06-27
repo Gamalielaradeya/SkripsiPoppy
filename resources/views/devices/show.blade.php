@@ -26,7 +26,7 @@
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <h2 class="text-lg font-semibold text-slate-950">{{ $device->display_name }}</h2>
-                            <p class="mt-1 font-mono text-xs text-slate-500">{{ $device->agent_id }}</p>
+                            <p class="mt-1 font-mono text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($device->agent_id, 10, '...') }}</p>
                         </div>
                         <x-status-badge :status="$device->display_status" />
                     </div>
@@ -155,42 +155,42 @@
                             </div>
                         @endif
 
-                        <div x-data="{ open: false }">
-                            <x-action-button variant="danger" class="w-full" x-on:click="open = true">Restart Client</x-action-button>
+                        @if ($device->display_status === 'online')
+                            <x-confirm-modal
+                                title="Confirm Restart Client"
+                                confirmLabel="Queue Restart"
+                                triggerLabel="Restart Client"
+                                triggerVariant="danger"
+                                class="w-full"
+                                formAction="{{ route('devices.remote-actions.restart', $device) }}"
+                                formMethod="POST"
+                                :disabled="false"
+                            >
+                                <p>This queues a manual restart command for <strong>{{ $device->display_name }}</strong>. Laravel will not execute the restart directly.</p>
 
-                            <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
-                                <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl" x-on:click.outside="open = false">
-                                    <h2 class="text-lg font-semibold text-slate-950">Confirm Restart Client</h2>
-                                    <p class="mt-2 text-sm text-slate-600">
-                                        This queues a manual restart command for {{ $device->display_name }}. Laravel will not execute the restart directly.
-                                    </p>
-
-                                    <form method="POST" action="{{ route('devices.remote-actions.restart', $device) }}" class="mt-5 space-y-4">
-                                        @csrf
-                                        <label class="block">
-                                            <span class="text-sm font-medium text-slate-700">Admin reason</span>
-                                            <textarea name="reason" required minlength="5" rows="4" class="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" placeholder="Explain why this client must be restarted.">{{ old('reason') }}</textarea>
-                                            @error('reason')
-                                                <span class="mt-1 block text-xs text-red-600">{{ $message }}</span>
-                                            @enderror
-                                        </label>
-
-                                        <label class="flex items-start gap-3 rounded-md border border-slate-200 p-3 text-sm text-slate-700">
-                                            <input type="checkbox" name="confirm_restart" value="1" required class="mt-1 rounded border-slate-300 text-red-600 focus:ring-red-500">
-                                            <span>I confirm this is a manual admin action and may interrupt the Windows user.</span>
-                                        </label>
-                                        @error('confirm_restart')
-                                            <span class="block text-xs text-red-600">{{ $message }}</span>
+                                <div class="mt-4 space-y-4">
+                                    <label class="block">
+                                        <span class="text-sm font-medium text-slate-700">Admin reason</span>
+                                        <textarea name="reason" required minlength="5" rows="3" class="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" placeholder="Explain why this client must be restarted.">{{ old('reason') }}</textarea>
+                                        @error('reason')
+                                            <span class="mt-1 block text-xs text-red-600">{{ $message }}</span>
                                         @enderror
-
-                                        <div class="flex justify-end gap-3">
-                                            <button type="button" x-on:click="open = false" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700">Cancel</button>
-                                            <button type="submit" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700">Queue Restart</button>
-                                        </div>
-                                    </form>
+                                    </label>
+                                    <label class="flex items-start gap-3 rounded-md border border-slate-200 p-3 text-sm text-slate-700">
+                                        <input type="checkbox" name="confirm_restart" value="1" required class="mt-1 rounded border-slate-300 text-red-600 focus:ring-red-500">
+                                        <span>I confirm this is a manual admin action and may interrupt the Windows user.</span>
+                                    </label>
+                                    @error('confirm_restart')
+                                        <span class="block text-xs text-red-600">{{ $message }}</span>
+                                    @enderror
                                 </div>
+                            </x-confirm-modal>
+                        @else
+                            <x-action-button disabled variant="danger" class="w-full">Restart Client</x-action-button>
+                            <div class="rounded-md bg-amber-50 p-3 text-xs text-amber-800">
+                                Restart unavailable because this device is offline.
                             </div>
-                        </div>
+                        @endif
                     </div>
                     <p class="mt-4 text-xs text-slate-500">No SSH, WinRM, RSyslog command delivery, or automatic remediation is used.</p>
                 </x-info-panel>

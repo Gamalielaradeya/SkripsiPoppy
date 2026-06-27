@@ -4,18 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\Alert;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class AlertController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $query = Alert::query()
+            ->with(['evidences', 'latestNotification']);
+
+        if ($severity = $request->query('severity')) {
+            $query->where('severity', $severity);
+        }
+
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($target = $request->query('target')) {
+            $query->where('target_name', 'like', "%{$target}%");
+        }
+
+        if ($keyword = $request->query('keyword')) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                  ->orWhere('evidence_summary', 'like', "%{$keyword}%")
+                  ->orWhere('target_name', 'like', "%{$keyword}%");
+            });
+        }
+
         return view('alerts.index', [
-            'alerts' => Alert::query()
-                ->with(['evidences', 'latestNotification'])
+            'alerts' => $query
                 ->latest('detected_at')
-                ->paginate(15),
+                ->paginate(15)
+                ->appends($request->query()),
         ]);
     }
 

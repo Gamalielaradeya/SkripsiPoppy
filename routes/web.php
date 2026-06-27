@@ -46,5 +46,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/advanced-logs', [AdvancedLogController::class, 'index'])->name('advanced-logs.index');
     Route::get('/advanced-logs/{id}', [AdvancedLogController::class, 'show'])->name('advanced-logs.show');
 
-    Route::get('/settings', SettingController::class)->name('settings.index');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings/thresholds', [SettingController::class, 'updateThresholds'])->name('settings.thresholds.update');
+    Route::post('/settings/env', [SettingController::class, 'updateEnv'])->name('settings.env.update');
 });

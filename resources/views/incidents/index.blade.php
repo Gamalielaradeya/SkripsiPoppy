@@ -4,33 +4,39 @@
 @section('description', 'Korelasi masalah operasional berdasarkan beberapa evidence.')
 
 @section('content')
-    <x-filter-panel description="Filter visual untuk incident type, target, severity, dan status. Correlation logic belum diimplementasikan.">
-        <div class="grid gap-3 md:grid-cols-5">
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Incident Type</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Code/type">
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Target Device</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Device/server">
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Severity</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All severity</option>
-                </select>
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Status</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>Open / resolved</option>
-                </select>
-            </label>
-            <div class="flex items-end">
-                <x-action-button disabled class="w-full">Apply Filter</x-action-button>
-            </div>
-        </div>
-    </x-filter-panel>
+    <x-filter-panel description="Filter incident berdasarkan severity, status, dan target device.">
+            <form method="GET" action="{{ route('incidents.index') }}" class="grid gap-3 md:grid-cols-5">
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Severity</span>
+                    <select name="severity" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                        <option value="">All severity</option>
+                        <option value="warning" @selected(request('severity') === 'warning')>Warning</option>
+                        <option value="error" @selected(request('severity') === 'error')>Error</option>
+                        <option value="critical" @selected(request('severity') === 'critical')>Critical</option>
+                    </select>
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Target Device</span>
+                    <input name="target" value="{{ request('target') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Device/server">
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Incident Type</span>
+                    <input name="incident_type" value="{{ request('incident_type') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Code/type">
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Status</span>
+                    <select name="status" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                        <option value="">All</option>
+                        <option value="open" @selected(request('status') === 'open')>Open</option>
+                        <option value="resolved" @selected(request('status') === 'resolved')>Resolved</option>
+                    </select>
+                </label>
+                <div class="flex items-end gap-2">
+                    <x-action-button class="w-full">Apply Filter</x-action-button>
+                    <a href="{{ route('incidents.index') }}" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
+                </div>
+            </form>
+        </x-filter-panel>
 
     @if ($incidents->isEmpty())
         <x-empty-state
