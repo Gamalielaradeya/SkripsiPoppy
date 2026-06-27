@@ -155,7 +155,7 @@
                             </div>
                         @endif
 
-                        @if ($device->display_status === 'online')
+                        @if ($device->display_status === 'online' && config('monitoring.remote_action.restart_enabled', false))
                             <x-confirm-modal
                                 title="Confirm Restart Client"
                                 confirmLabel="Queue Restart"

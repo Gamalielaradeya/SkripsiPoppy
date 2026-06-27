@@ -109,7 +109,7 @@
                                         @else
                                             <x-action-button disabled variant="ghost">RDP</x-action-button>
                                         @endif
-                                        @if ($device->display_status === 'online')
+                                        @if ($device->display_status === 'online' && config('monitoring.remote_action.restart_enabled', false))
                                             <a href="{{ route('devices.show', $device) }}#restart" class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">Restart</a>
                                         @else
                                             <x-action-button disabled variant="danger">Restart</x-action-button>

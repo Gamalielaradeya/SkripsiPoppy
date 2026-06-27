@@ -57,6 +57,10 @@ class RemoteActionController extends Controller
 
     public function storeRestart(Request $request, Device $device): RedirectResponse
     {
+        if (! config('monitoring.remote_action.restart_enabled', false)) {
+            return back()->with('status', 'Remote restart dimatikan. Aktifkan melalui menu Pengaturan.');
+        }
+
         $validated = $request->validate([
             'reason' => ['required', 'string', 'min:5', 'max:1000'],
             'confirm_restart' => ['accepted'],
