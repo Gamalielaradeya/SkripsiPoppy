@@ -91,11 +91,16 @@
                             <dt class="text-slate-500">Duration</dt>
                             <dd class="text-right font-medium text-slate-900">
                                 @if ($incident->detected_at)
+                                    @php
+                                        $duration = $incident->detected_at->copy();
+                                        \Carbon\Carbon::setLocale('en');
+                                    @endphp
                                     @if ($incident->status === 'resolved' && $incident->resolved_at)
-                                        {{ $incident->detected_at->copy()->setLocale('en')->diffForHumans($incident->resolved_at, ['parts' => 2]) }}
+                                        {{ $duration->diffForHumans($incident->resolved_at, ['parts' => 2]) }}
                                     @else
-                                        {{ $incident->detected_at->copy()->setLocale('en')->diffForHumans(now(), ['parts' => 2]) }}
+                                        {{ $duration->diffForHumans(now(), ['parts' => 2]) }}
                                     @endif
+                                    @php \Carbon\Carbon::setLocale('id'); @endphp
                                 @else
                                     -
                                 @endif
