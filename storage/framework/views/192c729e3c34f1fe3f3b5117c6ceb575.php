@@ -52,25 +52,7 @@
                 <input name="keyword" value="<?php echo e($filters['keyword'] ?? ''); ?>" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Raw/parsed">
             </label>
             <div class="flex items-end gap-2 md:col-span-6">
-                <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['class' => 'w-full md:w-auto']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('action-button'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['class' => 'w-full md:w-auto']); ?>Apply <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
+                <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800 md:w-auto">Terapkan Filter</button>
                 <a href="<?php echo e(route('advanced-logs.index')); ?>" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
             </div>
         </form>

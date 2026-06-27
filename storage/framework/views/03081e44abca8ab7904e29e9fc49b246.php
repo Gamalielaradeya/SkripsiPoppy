@@ -4,59 +4,53 @@
 <?php $__env->startSection('content'); ?>
     <?php if (isset($component)) { $__componentOriginalf3f7946f558699cf27352737986448eb = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf3f7946f558699cf27352737986448eb = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.filter-panel','data' => ['description' => 'Filter ini disiapkan untuk pencarian device setelah data telemetry stabil. Saat ini tabel memakai record database yang ada.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.filter-panel','data' => ['description' => 'Cari dan filter device berdasarkan status, konektivitas Firebird, dan proses Accurate.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('filter-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['description' => 'Filter ini disiapkan untuk pencarian device setelah data telemetry stabil. Saat ini tabel memakai record database yang ada.']); ?>
-        <div class="grid gap-3 md:grid-cols-5">
+<?php $component->withAttributes(['description' => 'Cari dan filter device berdasarkan status, konektivitas Firebird, dan proses Accurate.']); ?>
+        <form method="GET" action="<?php echo e(route('devices.index')); ?>" class="grid gap-3 md:grid-cols-5">
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Search</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Label, hostname, user, IP">
+                <input name="search" value="<?php echo e(request('search')); ?>" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Label, hostname, user, IP">
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Status</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All status</option>
+                <select name="status" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All status</option>
+                    <option value="online" <?php if(request('status') === 'online'): echo 'selected'; endif; ?>>Online</option>
+                    <option value="warning" <?php if(request('status') === 'warning'): echo 'selected'; endif; ?>>Warning</option>
+                    <option value="error" <?php if(request('status') === 'error'): echo 'selected'; endif; ?>>Error</option>
+                    <option value="offline" <?php if(request('status') === 'offline'): echo 'selected'; endif; ?>>Offline</option>
                 </select>
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Firebird</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All connections</option>
+                <select name="firebird" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All connections</option>
+                    <option value="connected" <?php if(request('firebird') === 'connected'): echo 'selected'; endif; ?>>Connected</option>
+                    <option value="slow" <?php if(request('firebird') === 'slow'): echo 'selected'; endif; ?>>Slow</option>
+                    <option value="timeout" <?php if(request('firebird') === 'timeout'): echo 'selected'; endif; ?>>Timeout</option>
+                    <option value="refused" <?php if(request('firebird') === 'refused'): echo 'selected'; endif; ?>>Refused</option>
                 </select>
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Accurate</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All process states</option>
+                <select name="accurate" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All process states</option>
+                    <option value="running" <?php if(request('accurate') === 'running'): echo 'selected'; endif; ?>>Berjalan</option>
+                    <option value="not_running" <?php if(request('accurate') === 'not_running'): echo 'selected'; endif; ?>>Tidak Berjalan</option>
+                    <option value="unknown" <?php if(request('accurate') === 'unknown'): echo 'selected'; endif; ?>>Tidak Diketahui</option>
                 </select>
             </label>
-            <div class="flex items-end">
-                <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['disabled' => true,'class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('action-button'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['disabled' => true,'class' => 'w-full']); ?>Apply Filter <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
+            <div class="flex items-end gap-2">
+                <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Terapkan Filter</button>
+                <a href="<?php echo e(route('devices.index')); ?>" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
             </div>
-        </div>
+        </form>
      <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginalf3f7946f558699cf27352737986448eb)): ?>
@@ -122,7 +116,7 @@
                                         <?php echo e($device->display_name); ?>
 
                                     </a>
-                                    <div class="font-mono text-xs text-slate-500"><?php echo e(\Illuminate\Support\Str::limit($device->agent_id, 18)); ?></div>
+                                    <div class="font-mono text-xs text-slate-500"><?php echo e(\Illuminate\Support\Str::limit($device->agent_id, 10, '...')); ?></div>
                                 </td>
                                 <td class="px-4 py-3"><?php echo e($device->hostname); ?></td>
                                 <td class="px-4 py-3"><?php echo e($device->windows_user ?? '-'); ?></td>
@@ -195,64 +189,75 @@
 <?php endif; ?></td>
                                 <td class="px-4 py-3"><?php echo e($device->last_seen_at?->diffForHumans() ?? '-'); ?></td>
                                 <td class="px-4 py-3">
-                                    <div class="flex justify-end gap-2">
-                                        <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['href' => route('devices.show', $device),'variant' => 'secondary']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('action-button'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('devices.show', $device)),'variant' => 'secondary']); ?>Detail <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-                                        <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['disabled' => true,'variant' => 'ghost']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('action-button'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['disabled' => true,'variant' => 'ghost']); ?>RDP <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-                                        <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['disabled' => true,'variant' => 'danger']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('action-button'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['disabled' => true,'variant' => 'danger']); ?>Restart <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
+                                    <div
+                                        class="flex justify-end"
+                                        x-data="{ open: false }"
+                                        x-on:click.outside="open = false"
+                                    >
+                                        <div class="relative inline-flex rounded-md">
+                                            
+                                            <a
+                                                href="<?php echo e(route('devices.show', $device)); ?>"
+                                                class="inline-flex items-center gap-1.5 rounded-l-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                                            >
+                                                Detail
+                                            </a>
+
+                                            
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center rounded-r-md border border-l-0 border-slate-200 bg-white px-2 py-2 text-sm text-slate-500 transition hover:bg-slate-50"
+                                                x-on:click="open = !open"
+                                            >
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            </button>
+
+                                            
+                                            <div
+                                                x-cloak
+                                                x-show="open"
+                                                x-transition.opacity.duration.150ms
+                                                class="absolute right-0 top-full z-50 mt-1 w-40 rounded-md border border-slate-200 bg-white py-1 shadow-lg"
+                                            >
+                                                
+                                                <?php if($device->display_status === 'online' && ($device->ip_zerotier || $device->ip_local)): ?>
+                                                    <form method="POST" action="<?php echo e(route('devices.remote-actions.rdp', $device)); ?>">
+                                                        <?php echo csrf_field(); ?>
+                                                        <button type="submit" class="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
+                                                            Remote Desktop
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="block px-3 py-2 text-sm text-slate-400">Remote Desktop</span>
+                                                <?php endif; ?>
+
+                                                
+                                                <?php if($device->display_status === 'online' && ($device->ip_zerotier || $device->ip_local)): ?>
+                                                    <form method="POST" action="<?php echo e(route('devices.remote-actions.ping', $device)); ?>">
+                                                        <?php echo csrf_field(); ?>
+                                                        <button type="submit" class="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
+                                                            Ping Test
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="block px-3 py-2 text-sm text-slate-400">Ping Test</span>
+                                                <?php endif; ?>
+
+                                                
+                                                <?php if($device->display_status === 'online' && config('monitoring.remote_action.restart_enabled', false)): ?>
+                                                    <a
+                                                        href="<?php echo e(route('devices.show', $device)); ?>#restart"
+                                                        class="block px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                                    >
+                                                        Restart
+                                                    </a>
+                                                <?php else: ?>
+                                                    <span class="block px-3 py-2 text-sm text-slate-400">Restart</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>

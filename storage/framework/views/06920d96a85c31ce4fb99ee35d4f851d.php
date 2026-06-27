@@ -9,7 +9,7 @@
         $alertStatus = $openAlerts > 0 ? 'warning' : 'normal';
     ?>
 
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <?php if (isset($component)) { $__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28 = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.status-card','data' => ['title' => 'Device Online','value' => $onlineDevices . ' / ' . $totalDevices,'status' => $deviceStatus,'href' => ''.e(route('devices.index')).'','description' => 'Status operasional dihitung dari waktu heartbeat terakhir.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
@@ -32,14 +32,14 @@
 <?php endif; ?>
         <?php if (isset($component)) { $__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.status-card','data' => ['title' => 'Firebird Connectivity','value' => $firebirdConnectedDevices . ' / ' . $totalDevices,'status' => $firebirdStatus,'href' => ''.e(route('devices.index')).'','description' => 'Status koneksi client ke Firebird dari data real.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.status-card','data' => ['title' => 'Firebird OK','value' => $firebirdConnectedDevices . ' / ' . $totalDevices,'status' => $firebirdStatus,'href' => ''.e(route('devices.index')).'','description' => 'Status koneksi client ke Firebird dari data real.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('status-card'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Firebird Connectivity','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($firebirdConnectedDevices . ' / ' . $totalDevices),'status' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($firebirdStatus),'href' => ''.e(route('devices.index')).'','description' => 'Status koneksi client ke Firebird dari data real.']); ?>
+<?php $component->withAttributes(['title' => 'Firebird OK','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($firebirdConnectedDevices . ' / ' . $totalDevices),'status' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($firebirdStatus),'href' => ''.e(route('devices.index')).'','description' => 'Status koneksi client ke Firebird dari data real.']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28)): ?>
@@ -80,6 +80,46 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes(['title' => 'Open Alerts','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($openAlerts),'status' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($alertStatus),'href' => ''.e(route('alerts.index')).'','description' => 'Alert terbuka yang sudah tersimpan.']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28)): ?>
+<?php $attributes = $__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28; ?>
+<?php unset($__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28)): ?>
+<?php $component = $__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28; ?>
+<?php unset($__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28); ?>
+<?php endif; ?>
+        <?php if (isset($component)) { $__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.status-card','data' => ['title' => 'Audit Today','value' => $auditEventsToday,'status' => 'normal','href' => ''.e(route('accurate-audit.index')).'','description' => 'Event audit Accurate yang tersimpan hari ini.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('status-card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'Audit Today','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($auditEventsToday),'status' => 'normal','href' => ''.e(route('accurate-audit.index')).'','description' => 'Event audit Accurate yang tersimpan hari ini.']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28)): ?>
+<?php $attributes = $__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28; ?>
+<?php unset($__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28)): ?>
+<?php $component = $__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28; ?>
+<?php unset($__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28); ?>
+<?php endif; ?>
+        <?php if (isset($component)) { $__componentOriginal7b86ed472ac08c7c20bbdcf538eccf28 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.status-card','data' => ['title' => 'Open Incidents','value' => $openIncidents,'status' => $openIncidents > 0 ? 'warning' : 'normal','href' => ''.e(route('incidents.index')).'','description' => 'Incident terbuka yang perlu ditangani admin.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('status-card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'Open Incidents','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($openIncidents),'status' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($openIncidents > 0 ? 'warning' : 'normal'),'href' => ''.e(route('incidents.index')).'','description' => 'Incident terbuka yang perlu ditangani admin.']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal7b86ed472ac08c7c20bbdcf538eccf28)): ?>
@@ -394,7 +434,7 @@
                     <?php $__currentLoopData = $latestAuditEvents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <a href="<?php echo e(route('accurate-audit.show', $event)); ?>" class="block rounded-md border border-slate-200 p-3 hover:bg-slate-50">
                             <div class="flex items-center justify-between gap-3">
-                                <div class="font-medium text-slate-950"><?php echo e($event->accurate_username ?? 'Unknown Accurate User'); ?></div>
+                                <div class="font-medium text-slate-950"><?php echo e($event->accurate_username ?? 'Pengguna Accurate tidak dikenal'); ?></div>
                                 <div class="text-xs text-slate-500"><?php echo e($event->activity_time?->format('Y-m-d H:i') ?? '-'); ?></div>
                             </div>
                             <div class="mt-1 text-sm text-slate-600"><?php echo e($event->transaction_description ?? $event->source ?? '-'); ?></div>

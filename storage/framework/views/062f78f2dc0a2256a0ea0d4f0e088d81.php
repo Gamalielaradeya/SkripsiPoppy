@@ -1,18 +1,18 @@
 <?php $__env->startSection('title', 'Device Detail'); ?>
-<?php $__env->startSection('description', 'Detail satu device Windows, status telemetry, koneksi Firebird, Accurate process, dan action manual.'); ?>
+<?php $__env->startSection('description', 'Detail satu device Windows, status telemetry, koneksi Firebird, Accurate process, dan tindakan manual.'); ?>
 
 <?php $__env->startSection('content'); ?>
     <?php if(! $device): ?>
         <?php if (isset($component)) { $__componentOriginal074a021b9d42f490272b5eefda63257c = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal074a021b9d42f490272b5eefda63257c = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.empty-state','data' => ['title' => 'Device tidak ditemukan.','message' => 'Tidak ada device real dengan ID '.e($id).'. Device harus dibuat dari identitas agent_id, bukan hostname.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.empty-state','data' => ['title' => 'Perangkat tidak ditemukan.','message' => 'Tidak ada perangkat dengan ID '.e($id).'. Perangkat dibuat berdasarkan identitas agent_id, bukan hostname.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('empty-state'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Device tidak ditemukan.','message' => 'Tidak ada device real dengan ID '.e($id).'. Device harus dibuat dari identitas agent_id, bukan hostname.']); ?>
+<?php $component->withAttributes(['title' => 'Perangkat tidak ditemukan.','message' => 'Tidak ada perangkat dengan ID '.e($id).'. Perangkat dibuat berdasarkan identitas agent_id, bukan hostname.']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal074a021b9d42f490272b5eefda63257c)): ?>
@@ -28,6 +28,7 @@
             $networkStatus = $latestNetworkCheck?->tcp_status ?? $device->firebird_connection_status ?? 'unknown';
             $accurateProcessStatus = $latestAccurateProcess?->process_status ?? $device->accurate_status ?? 'unknown';
             $rdpTargetIp = $device->ip_zerotier ?: $device->ip_local;
+            $pingTargetIp = $device->ip_zerotier ?: $device->ip_local;
         ?>
         <?php if(session('status')): ?>
             <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
@@ -39,18 +40,18 @@
             <div class="space-y-5 xl:col-span-2">
                 <?php if (isset($component)) { $__componentOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Identity','description' => 'Identitas device memakai agent_id sebagai primary identity. Hostname hanya metadata Windows.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Identitas','description' => 'Identitas perangkat memakai agent_id sebagai primary identity. Hostname hanya metadata Windows.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('info-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Identity','description' => 'Identitas device memakai agent_id sebagai primary identity. Hostname hanya metadata Windows.']); ?>
+<?php $component->withAttributes(['title' => 'Identitas','description' => 'Identitas perangkat memakai agent_id sebagai primary identity. Hostname hanya metadata Windows.']); ?>
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <h2 class="text-lg font-semibold text-slate-950"><?php echo e($device->display_name); ?></h2>
-                            <p class="mt-1 font-mono text-xs text-slate-500"><?php echo e($device->agent_id); ?></p>
+                            <p class="mt-1 font-mono text-xs text-slate-500"><?php echo e(\Illuminate\Support\Str::limit($device->agent_id, 10, '...')); ?></p>
                         </div>
                         <?php if (isset($component)) { $__componentOriginal8c81617a70e11bcf247c4db924ab1b62 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal8c81617a70e11bcf247c4db924ab1b62 = $attributes; } ?>
@@ -80,15 +81,15 @@
                             <dd class="mt-1 font-medium text-slate-900"><?php echo e($device->hostname); ?></dd>
                         </div>
                         <div>
-                            <dt class="text-slate-500">Windows User</dt>
+                            <dt class="text-slate-500">Pengguna Windows</dt>
                             <dd class="mt-1 font-medium text-slate-900"><?php echo e($device->windows_user ?? '-'); ?></dd>
                         </div>
                         <div>
-                            <dt class="text-slate-500">Agent Version</dt>
+                            <dt class="text-slate-500">Versi Agent</dt>
                             <dd class="mt-1 font-medium text-slate-900"><?php echo e($device->agent_version ?? '-'); ?></dd>
                         </div>
                         <div>
-                            <dt class="text-slate-500">Last Seen</dt>
+                            <dt class="text-slate-500">Terakhir Terlihat</dt>
                             <dd class="mt-1 font-medium text-slate-900"><?php echo e($device->last_seen_at?->diffForHumans() ?? '-'); ?></dd>
                         </div>
                     </dl>
@@ -106,21 +107,21 @@
                 <div class="grid gap-5 lg:grid-cols-2">
                     <?php if (isset($component)) { $__componentOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Connection','description' => 'Koneksi lokal, ZeroTier, Firebird, dan RDP terakhir yang sudah tersimpan.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Koneksi','description' => 'Koneksi lokal, ZeroTier, Firebird, dan RDP terakhir yang sudah tersimpan.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('info-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Connection','description' => 'Koneksi lokal, ZeroTier, Firebird, dan RDP terakhir yang sudah tersimpan.']); ?>
+<?php $component->withAttributes(['title' => 'Koneksi','description' => 'Koneksi lokal, ZeroTier, Firebird, dan RDP terakhir yang sudah tersimpan.']); ?>
                         <dl class="space-y-4 text-sm">
                             <div class="flex items-center justify-between gap-4">
-                                <dt class="text-slate-500">Local IP</dt>
+                                <dt class="text-slate-500">IP Lokal</dt>
                                 <dd class="font-mono text-xs text-slate-900"><?php echo e($device->ip_local ?? '-'); ?></dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
-                                <dt class="text-slate-500">ZeroTier IP</dt>
+                                <dt class="text-slate-500">IP ZeroTier</dt>
                                 <dd class="font-mono text-xs text-slate-900"><?php echo e($device->ip_zerotier ?? '-'); ?></dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
@@ -147,15 +148,15 @@
 <?php endif; ?></dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
-                                <dt class="text-slate-500">Firebird Host</dt>
+                                <dt class="text-slate-500">Host Firebird</dt>
                                 <dd class="font-mono text-xs text-slate-900"><?php echo e($latestNetworkCheck?->target_host ?? '-'); ?></dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
-                                <dt class="text-slate-500">Firebird Port</dt>
+                                <dt class="text-slate-500">Port Firebird</dt>
                                 <dd class="font-mono text-xs text-slate-900"><?php echo e($latestNetworkCheck?->target_port ?? '-'); ?></dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
-                                <dt class="text-slate-500">Firebird Latency</dt>
+                                <dt class="text-slate-500">Latensi Firebird</dt>
                                 <dd class="font-medium text-slate-900"><?php echo e($latestNetworkCheck?->tcp_latency_ms !== null ? number_format($latestNetworkCheck->tcp_latency_ms, 0).' ms' : '-'); ?></dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
@@ -183,7 +184,7 @@
                             </div>
                             <?php if($latestNetworkCheck): ?>
                                 <div class="rounded-md bg-slate-50 p-3 text-xs text-slate-600">
-                                    Last network check: <?php echo e($latestNetworkCheck->checked_at?->diffForHumans() ?? '-'); ?>
+                                    Pengecekan jaringan terakhir: <?php echo e($latestNetworkCheck->checked_at?->diffForHumans() ?? '-'); ?>
 
                                 </div>
                             <?php endif; ?>
@@ -201,14 +202,14 @@
 
                     <?php if (isset($component)) { $__componentOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Performance','description' => 'Telemetry terakhir dari agent. Kosong berarti data belum dikirim.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Performa','description' => 'Telemetry terakhir dari agent. Kosong berarti data belum dikirim.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('info-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Performance','description' => 'Telemetry terakhir dari agent. Kosong berarti data belum dikirim.']); ?>
+<?php $component->withAttributes(['title' => 'Performa','description' => 'Telemetry terakhir dari agent. Kosong berarti data belum dikirim.']); ?>
                         <dl class="space-y-4 text-sm">
                             <div class="flex items-center justify-between gap-4">
                                 <dt class="text-slate-500">CPU</dt>
@@ -224,14 +225,14 @@
                             </div>
                             <div class="flex items-center justify-between gap-4">
                                 <dt class="text-slate-500">Uptime</dt>
-                                <dd class="font-medium text-slate-900"><?php echo e($latestTelemetry?->uptime_seconds !== null ? number_format($latestTelemetry->uptime_seconds).' sec' : '-'); ?></dd>
+                                <dd class="font-medium text-slate-900"><?php echo e($latestTelemetry?->uptime_seconds !== null ? number_format($latestTelemetry->uptime_seconds).' detik' : '-'); ?></dd>
                             </div>
                             <div class="flex items-center justify-between gap-4">
-                                <dt class="text-slate-500">Last Boot</dt>
+                                <dt class="text-slate-500">Boot Terakhir</dt>
                                 <dd class="font-medium text-slate-900"><?php echo e($latestTelemetry?->last_boot_at?->format('Y-m-d H:i') ?? '-'); ?></dd>
                             </div>
                             <div class="rounded-md bg-slate-50 p-3 text-xs text-slate-600">
-                                Reported at: <?php echo e($latestTelemetry?->reported_at?->diffForHumans() ?? 'Belum ada telemetry snapshot.'); ?>
+                                Dilaporkan: <?php echo e($latestTelemetry?->reported_at?->diffForHumans() ?? 'Belum ada telemetry snapshot.'); ?>
 
                             </div>
                         </dl>
@@ -249,19 +250,19 @@
 
                 <?php if (isset($component)) { $__componentOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Accurate Process','description' => 'Status proses Accurate pada device ini. Tidak dibuat critical tanpa rule dan evidence.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Proses Accurate','description' => 'Status proses Accurate pada perangkat ini. Tidak dibuat critical tanpa aturan dan bukti.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('info-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Accurate Process','description' => 'Status proses Accurate pada device ini. Tidak dibuat critical tanpa rule dan evidence.']); ?>
+<?php $component->withAttributes(['title' => 'Proses Accurate','description' => 'Status proses Accurate pada perangkat ini. Tidak dibuat critical tanpa aturan dan bukti.']); ?>
                     <div class="flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <div class="text-sm font-medium text-slate-950"><?php echo e($latestAccurateProcess?->process_name ?? 'accurate.exe'); ?></div>
                             <div class="mt-1 text-xs text-slate-500">PID: <?php echo e($latestAccurateProcess?->process_pid ?? '-'); ?></div>
-                            <div class="mt-1 text-xs text-slate-500">Owner: <?php echo e($latestAccurateProcess?->process_owner ?? '-'); ?></div>
+                            <div class="mt-1 text-xs text-slate-500">Pemilik: <?php echo e($latestAccurateProcess?->process_owner ?? '-'); ?></div>
                             <div class="mt-1 break-all text-xs text-slate-500">Path: <?php echo e($latestAccurateProcess?->process_path ?? '-'); ?></div>
                         </div>
                         <?php if (isset($component)) { $__componentOriginal8c81617a70e11bcf247c4db924ab1b62 = $component; } ?>
@@ -286,7 +287,7 @@
 <?php endif; ?>
                     </div>
                     <div class="mt-4 rounded-md bg-slate-50 p-3 text-xs text-slate-600">
-                        Checked at: <?php echo e($latestAccurateProcess?->checked_at?->diffForHumans() ?? 'Belum ada snapshot proses Accurate.'); ?>
+                        Diperiksa: <?php echo e($latestAccurateProcess?->checked_at?->diffForHumans() ?? 'Belum ada snapshot proses Accurate.'); ?>
 
                     </div>
                  <?php echo $__env->renderComponent(); ?>
@@ -304,27 +305,29 @@
             <div class="space-y-5">
                 <?php if (isset($component)) { $__componentOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Actions','description' => 'Remote Desktop dibuka dari perangkat admin. Restart dikirim lewat polling Windows Agent.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Tindakan','description' => 'Remote Desktop dibuka dari perangkat admin. Restart dikirim lewat polling Windows Agent.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('info-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Actions','description' => 'Remote Desktop dibuka dari perangkat admin. Restart dikirim lewat polling Windows Agent.']); ?>
+<?php $component->withAttributes(['title' => 'Tindakan','description' => 'Remote Desktop dibuka dari perangkat admin. Restart dikirim lewat polling Windows Agent.']); ?>
                     <div class="space-y-3">
-                        <form method="POST" action="<?php echo e(route('devices.remote-actions.rdp', $device)); ?>">
-                            <?php echo csrf_field(); ?>
-                            <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
+                        
+                        <?php if($device->display_status === 'online' && $rdpTargetIp): ?>
+                            <form method="POST" action="<?php echo e(route('devices.remote-actions.rdp', $device)); ?>">
+                                <?php echo csrf_field(); ?>
+                                <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['type' => 'submit','disabled' => ! $rdpTargetIp,'class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['type' => 'submit','class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('action-button'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['type' => 'submit','disabled' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(! $rdpTargetIp),'class' => 'w-full']); ?>Remote Desktop <?php echo $__env->renderComponent(); ?>
+<?php $component->withAttributes(['type' => 'submit','class' => 'w-full']); ?>Remote Desktop <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
 <?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
@@ -334,31 +337,55 @@
 <?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
 <?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
 <?php endif; ?>
-                        </form>
-
-                        <?php if($rdpTargetIp): ?>
+                            </form>
                             <div class="rounded-md bg-slate-50 p-3 text-xs text-slate-600">
-                                <div class="font-medium text-slate-700">Launcher target</div>
+                                <div class="font-medium text-slate-700">Target launcher</div>
                                 <div class="mt-1 font-mono text-slate-900">mstsc /v:<?php echo e($rdpTargetIp); ?></div>
-                                <div class="mt-1">Credentials are not stored or included.</div>
+                                <div class="mt-1">Kredensial tidak disimpan atau disertakan.</div>
                             </div>
                         <?php else: ?>
+                            <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['disabled' => true,'class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('action-button'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['disabled' => true,'class' => 'w-full']); ?>Remote Desktop <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
+<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
+<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
+<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
+<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
+<?php endif; ?>
                             <div class="rounded-md bg-amber-50 p-3 text-xs text-amber-800">
-                                Remote Desktop unavailable because this device has no ZeroTier or local IP.
+                                <?php if($device->display_status !== 'online'): ?>
+                                    Remote Desktop tidak tersedia karena perangkat sedang offline.
+                                <?php else: ?>
+                                    Remote Desktop tidak tersedia karena perangkat tidak memiliki IP ZeroTier atau IP lokal.
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
 
-                        <div x-data="{ open: false }">
-                            <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
+                        
+                        <?php if($device->display_status === 'online' && $pingTargetIp): ?>
+                            <form method="POST" action="<?php echo e(route('devices.remote-actions.ping', $device)); ?>">
+                                <?php echo csrf_field(); ?>
+                                <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['variant' => 'danger','class' => 'w-full','xOn:click' => 'open = true']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['type' => 'submit','class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('action-button'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['variant' => 'danger','class' => 'w-full','x-on:click' => 'open = true']); ?>Restart Client <?php echo $__env->renderComponent(); ?>
+<?php $component->withAttributes(['type' => 'submit','class' => 'w-full']); ?>Ping Test <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
 <?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
@@ -368,56 +395,113 @@
 <?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
 <?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
 <?php endif; ?>
+                            </form>
+                        <?php else: ?>
+                            <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['disabled' => true,'class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('action-button'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['disabled' => true,'class' => 'w-full']); ?>Ping Test <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
+<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
+<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
+<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
+<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
+<?php endif; ?>
+                        <?php endif; ?>
 
-                            <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
-                                <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl" x-on:click.outside="open = false">
-                                    <h2 class="text-lg font-semibold text-slate-950">Confirm Restart Client</h2>
-                                    <p class="mt-2 text-sm text-slate-600">
-                                        This queues a manual restart command for <?php echo e($device->display_name); ?>. Laravel will not execute the restart directly.
-                                    </p>
+                        
+                        <?php if($device->display_status === 'online' && config('monitoring.remote_action.restart_enabled', false)): ?>
+                            <?php if (isset($component)) { $__componentOriginal2cfaf2d8c559a20e3495c081df2d0b10 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal2cfaf2d8c559a20e3495c081df2d0b10 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.confirm-modal','data' => ['title' => 'Konfirmasi Restart Klien','confirmLabel' => 'Kirim Perintah Restart','triggerLabel' => 'Restart Klien','triggerVariant' => 'danger','class' => 'w-full','formAction' => ''.e(route('devices.remote-actions.restart', $device)).'','formMethod' => 'POST','disabled' => false]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('confirm-modal'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'Konfirmasi Restart Klien','confirmLabel' => 'Kirim Perintah Restart','triggerLabel' => 'Restart Klien','triggerVariant' => 'danger','class' => 'w-full','formAction' => ''.e(route('devices.remote-actions.restart', $device)).'','formMethod' => 'POST','disabled' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(false)]); ?>
+                                <p>Ini akan mengirim perintah restart manual untuk <strong><?php echo e($device->display_name); ?></strong>. Laravel tidak akan menjalankan restart secara langsung.</p>
 
-                                    <form method="POST" action="<?php echo e(route('devices.remote-actions.restart', $device)); ?>" class="mt-5 space-y-4">
-                                        <?php echo csrf_field(); ?>
-                                        <label class="block">
-                                            <span class="text-sm font-medium text-slate-700">Admin reason</span>
-                                            <textarea name="reason" required minlength="5" rows="4" class="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" placeholder="Explain why this client must be restarted."><?php echo e(old('reason')); ?></textarea>
-                                            <?php $__errorArgs = ['reason'];
+                                <div class="mt-4 space-y-4">
+                                    <label class="block">
+                                        <span class="text-sm font-medium text-slate-700">Alasan admin</span>
+                                        <textarea name="reason" required minlength="5" rows="3" class="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" placeholder="Jelaskan mengapa klien ini harus direstart."><?php echo e(old('reason')); ?></textarea>
+                                        <?php $__errorArgs = ['reason'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                <span class="mt-1 block text-xs text-red-600"><?php echo e($message); ?></span>
-                                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                        </label>
-
-                                        <label class="flex items-start gap-3 rounded-md border border-slate-200 p-3 text-sm text-slate-700">
-                                            <input type="checkbox" name="confirm_restart" value="1" required class="mt-1 rounded border-slate-300 text-red-600 focus:ring-red-500">
-                                            <span>I confirm this is a manual admin action and may interrupt the Windows user.</span>
-                                        </label>
-                                        <?php $__errorArgs = ['confirm_restart'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                            <span class="block text-xs text-red-600"><?php echo e($message); ?></span>
+                                            <span class="mt-1 block text-xs text-red-600"><?php echo e($message); ?></span>
                                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-
-                                        <div class="flex justify-end gap-3">
-                                            <button type="button" x-on:click="open = false" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700">Cancel</button>
-                                            <button type="submit" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700">Queue Restart</button>
-                                        </div>
-                                    </form>
+                                    </label>
+                                    <label class="flex items-start gap-3 rounded-md border border-slate-200 p-3 text-sm text-slate-700">
+                                        <input type="checkbox" name="confirm_restart" value="1" required class="mt-1 rounded border-slate-300 text-red-600 focus:ring-red-500">
+                                        <span>Saya konfirmasi ini adalah tindakan manual admin dan dapat mengganggu pengguna Windows.</span>
+                                    </label>
+                                    <?php $__errorArgs = ['confirm_restart'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                        <span class="block text-xs text-red-600"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
+                             <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal2cfaf2d8c559a20e3495c081df2d0b10)): ?>
+<?php $attributes = $__attributesOriginal2cfaf2d8c559a20e3495c081df2d0b10; ?>
+<?php unset($__attributesOriginal2cfaf2d8c559a20e3495c081df2d0b10); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal2cfaf2d8c559a20e3495c081df2d0b10)): ?>
+<?php $component = $__componentOriginal2cfaf2d8c559a20e3495c081df2d0b10; ?>
+<?php unset($__componentOriginal2cfaf2d8c559a20e3495c081df2d0b10); ?>
+<?php endif; ?>
+                        <?php else: ?>
+                            <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['disabled' => true,'variant' => 'danger','class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('action-button'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['disabled' => true,'variant' => 'danger','class' => 'w-full']); ?>Restart Klien <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
+<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
+<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
+<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
+<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
+<?php endif; ?>
+                            <div class="rounded-md bg-amber-50 p-3 text-xs text-amber-800">
+                                <?php if($device->display_status !== 'online'): ?>
+                                    Restart tidak tersedia karena perangkat sedang offline.
+                                <?php else: ?>
+                                    Restart tidak tersedia karena fitur dimatikan di Pengaturan.
+                                <?php endif; ?>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
-                    <p class="mt-4 text-xs text-slate-500">No SSH, WinRM, RSyslog command delivery, or automatic remediation is used.</p>
+                    <p class="mt-4 text-xs text-slate-500">Tidak menggunakan SSH, WinRM, pengiriman perintah RSyslog, atau remediasi otomatis.</p>
                  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384)): ?>
@@ -431,26 +515,26 @@ unset($__errorArgs, $__bag); ?>
 
                 <?php if (isset($component)) { $__componentOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Related Signals','description' => 'Alert, incident, dan action yang sudah tersimpan untuk device ini.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Sinyal Terkait','description' => 'Alert, incident, dan tindakan yang sudah tersimpan untuk perangkat ini.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('info-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Related Signals','description' => 'Alert, incident, dan action yang sudah tersimpan untuk device ini.']); ?>
+<?php $component->withAttributes(['title' => 'Sinyal Terkait','description' => 'Alert, incident, dan tindakan yang sudah tersimpan untuk perangkat ini.']); ?>
                     <div class="space-y-4 text-sm">
                         <div>
-                            <div class="font-medium text-slate-700">Alerts</div>
-                            <div class="mt-1 text-slate-500"><?php echo e($deviceAlerts->count()); ?> stored record(s)</div>
+                            <div class="font-medium text-slate-700">Alert</div>
+                            <div class="mt-1 text-slate-500"><?php echo e($deviceAlerts->count()); ?> catatan tersimpan</div>
                         </div>
                         <div>
-                            <div class="font-medium text-slate-700">Incidents</div>
-                            <div class="mt-1 text-slate-500"><?php echo e($deviceIncidents->count()); ?> stored record(s)</div>
+                            <div class="font-medium text-slate-700">Incident</div>
+                            <div class="mt-1 text-slate-500"><?php echo e($deviceIncidents->count()); ?> catatan tersimpan</div>
                         </div>
                         <div>
-                            <div class="font-medium text-slate-700">Remote Actions</div>
-                            <div class="mt-1 text-slate-500"><?php echo e($deviceRemoteActions->count()); ?> stored record(s)</div>
+                            <div class="font-medium text-slate-700">Tindakan Jarak Jauh</div>
+                            <div class="mt-1 text-slate-500"><?php echo e($deviceRemoteActions->count()); ?> catatan tersimpan</div>
                         </div>
                     </div>
                  <?php echo $__env->renderComponent(); ?>
@@ -466,16 +550,16 @@ unset($__errorArgs, $__bag); ?>
 
                 <?php if (isset($component)) { $__componentOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Recent Remote Actions','description' => 'Audit trail terbaru untuk device ini.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'Tindakan Terbaru','description' => 'Audit tindakan jarak jauh terbaru untuk perangkat ini.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('info-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Recent Remote Actions','description' => 'Audit trail terbaru untuk device ini.']); ?>
+<?php $component->withAttributes(['title' => 'Tindakan Terbaru','description' => 'Audit tindakan jarak jauh terbaru untuk perangkat ini.']); ?>
                     <?php if($deviceRemoteActions->isEmpty()): ?>
-                        <p class="text-sm text-slate-500">Belum ada remote action untuk device ini.</p>
+                        <p class="text-sm text-slate-500">Belum ada tindakan jarak jauh untuk perangkat ini.</p>
                     <?php else: ?>
                         <div class="space-y-3 text-sm">
                             <?php $__currentLoopData = $deviceRemoteActions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $action): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -504,7 +588,7 @@ unset($__errorArgs, $__bag); ?>
 <?php endif; ?>
                                     </div>
                                     <div class="mt-1 text-xs text-slate-500">
-                                        <?php echo e($action->requested_at?->format('Y-m-d H:i') ?? '-'); ?> by <?php echo e($action->requester?->name ?? '-'); ?>
+                                        <?php echo e($action->requested_at?->format('Y-m-d H:i') ?? '-'); ?> oleh <?php echo e($action->requester?->name ?? '-'); ?>
 
                                     </div>
                                     <div class="mt-2 text-xs text-slate-600"><?php echo e(\Illuminate\Support\Str::limit($action->reason ?? $action->result_message ?? '-', 90)); ?></div>
@@ -526,5 +610,4 @@ unset($__errorArgs, $__bag); ?>
         </div>
     <?php endif; ?>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /var/www/skripsi-poppy/resources/views/devices/show.blade.php ENDPATH**/ ?>

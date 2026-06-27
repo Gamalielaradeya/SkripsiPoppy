@@ -38,8 +38,8 @@
                 <input name="keyword" value="<?php echo e($filters['keyword'] ?? ''); ?>" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Description / invoice">
             </label>
             <div class="flex items-end gap-2">
-                <button type="submit" class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">Apply</button>
-                <a href="<?php echo e(route('accurate-audit.index')); ?>" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Reset</a>
+                <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Terapkan Filter</button>
+                <a href="<?php echo e(route('accurate-audit.index')); ?>" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
             </div>
         </form>
      <?php echo $__env->renderComponent(); ?>

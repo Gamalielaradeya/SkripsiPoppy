@@ -4,58 +4,46 @@
 <?php $__env->startSection('content'); ?>
     <?php if (isset($component)) { $__componentOriginalf3f7946f558699cf27352737986448eb = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf3f7946f558699cf27352737986448eb = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.filter-panel','data' => ['description' => 'Filter visual untuk incident type, target, severity, dan status. Correlation logic belum diimplementasikan.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.filter-panel','data' => ['description' => 'Filter incident berdasarkan severity, status, dan target device.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('filter-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['description' => 'Filter visual untuk incident type, target, severity, dan status. Correlation logic belum diimplementasikan.']); ?>
-        <div class="grid gap-3 md:grid-cols-5">
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Incident Type</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Code/type">
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Target Device</span>
-                <input disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400" placeholder="Device/server">
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Severity</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>All severity</option>
-                </select>
-            </label>
-            <label class="block">
-                <span class="text-xs font-medium text-slate-600">Status</span>
-                <select disabled class="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
-                    <option>Open / resolved</option>
-                </select>
-            </label>
-            <div class="flex items-end">
-                <?php if (isset($component)) { $__componentOriginald4c6978101b1c254eb70511d3c21c03f = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald4c6978101b1c254eb70511d3c21c03f = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.action-button','data' => ['disabled' => true,'class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('action-button'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['disabled' => true,'class' => 'w-full']); ?>Apply Filter <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $attributes = $__attributesOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__attributesOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald4c6978101b1c254eb70511d3c21c03f)): ?>
-<?php $component = $__componentOriginald4c6978101b1c254eb70511d3c21c03f; ?>
-<?php unset($__componentOriginald4c6978101b1c254eb70511d3c21c03f); ?>
-<?php endif; ?>
-            </div>
-        </div>
-     <?php echo $__env->renderComponent(); ?>
+<?php $component->withAttributes(['description' => 'Filter incident berdasarkan severity, status, dan target device.']); ?>
+            <form method="GET" action="<?php echo e(route('incidents.index')); ?>" class="grid gap-3 md:grid-cols-5">
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Severity</span>
+                    <select name="severity" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                        <option value="">All severity</option>
+                        <option value="warning" <?php if(request('severity') === 'warning'): echo 'selected'; endif; ?>>Warning</option>
+                        <option value="error" <?php if(request('severity') === 'error'): echo 'selected'; endif; ?>>Error</option>
+                        <option value="critical" <?php if(request('severity') === 'critical'): echo 'selected'; endif; ?>>Critical</option>
+                    </select>
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Target Device</span>
+                    <input name="target" value="<?php echo e(request('target')); ?>" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Device/server">
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Incident Type</span>
+                    <input name="incident_type" value="<?php echo e(request('incident_type')); ?>" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Code/type">
+                </label>
+                <label class="block">
+                    <span class="text-xs font-medium text-slate-600">Status</span>
+                    <select name="status" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                        <option value="">All</option>
+                        <option value="open" <?php if(request('status') === 'open'): echo 'selected'; endif; ?>>Open</option>
+                        <option value="resolved" <?php if(request('status') === 'resolved'): echo 'selected'; endif; ?>>Resolved</option>
+                    </select>
+                </label>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Terapkan Filter</button>
+                    <a href="<?php echo e(route('incidents.index')); ?>" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
+                </div>
+            </form>
+         <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginalf3f7946f558699cf27352737986448eb)): ?>
 <?php $attributes = $__attributesOriginalf3f7946f558699cf27352737986448eb; ?>

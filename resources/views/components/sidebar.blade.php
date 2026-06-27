@@ -5,7 +5,7 @@
         ['label' => 'Accurate Audit', 'route' => 'accurate-audit.index', 'active' => 'accurate-audit.*', 'mark' => 'AA'],
         ['label' => 'Incidents', 'route' => 'incidents.index', 'active' => 'incidents.*', 'mark' => 'IN'],
         ['label' => 'Alerts', 'route' => 'alerts.index', 'active' => 'alerts.*', 'mark' => 'AL'],
-        ['label' => 'Remote Actions', 'route' => 'remote-actions.index', 'active' => 'remote-actions.*', 'mark' => 'RA'],
+        ['label' => 'Tindakan Admin', 'route' => 'remote-actions.index', 'active' => 'remote-actions.*', 'mark' => 'TA'],
         ['label' => 'Advanced Logs', 'route' => 'advanced-logs.index', 'active' => 'advanced-logs.*', 'mark' => 'LG'],
         ['label' => 'Settings', 'route' => 'settings.index', 'active' => 'settings.*', 'mark' => 'ST'],
     ];
@@ -19,16 +19,6 @@
         <div class="border-b border-slate-800 px-5 py-5">
             <div class="text-sm font-semibold uppercase tracking-wide text-white">Centralized Monitor</div>
             <div class="mt-1 text-xs text-slate-400">Accurate real-device cockpit</div>
-            <div class="mt-4 grid grid-cols-2 gap-2 text-xs">
-                <div class="rounded-md border border-slate-800 bg-slate-900/70 px-3 py-2">
-                    <div class="text-slate-500">Scope</div>
-                    <div class="font-medium text-slate-200">Windows clients</div>
-                </div>
-                <div class="rounded-md border border-slate-800 bg-slate-900/70 px-3 py-2">
-                    <div class="text-slate-500">Mode</div>
-                    <div class="font-medium text-slate-200">No fake data</div>
-                </div>
-            </div>
         </div>
 
         <nav class="flex-1 space-y-1 px-3 py-4" aria-label="Primary navigation">
