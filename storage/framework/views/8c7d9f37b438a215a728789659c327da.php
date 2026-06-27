@@ -5,7 +5,7 @@
         ['label' => 'Accurate Audit', 'route' => 'accurate-audit.index', 'active' => 'accurate-audit.*', 'icon' => 'clipboard'],
         ['label' => 'Incidents', 'route' => 'incidents.index', 'active' => 'incidents.*', 'icon' => 'warning'],
         ['label' => 'Alerts', 'route' => 'alerts.index', 'active' => 'alerts.*', 'icon' => 'bell'],
-        ['label' => 'Tindakan Admin', 'route' => 'remote-actions.index', 'active' => 'remote-actions.*', 'icon' => 'wrench'],
+        ['label' => 'Admin Logs', 'route' => 'remote-actions.index', 'active' => 'remote-actions.*', 'icon' => 'wrench'],
         ['label' => 'Advanced Logs', 'route' => 'advanced-logs.index', 'active' => 'advanced-logs.*', 'icon' => 'terminal'],
         ['label' => 'Settings', 'route' => 'settings.index', 'active' => 'settings.*', 'icon' => 'cog'],
     ];

@@ -22,7 +22,7 @@
         </div>
 
         <div class="flex shrink-0 items-center gap-3 text-sm text-slate-500">
-            <span class="hidden lg:inline">Last refresh: <?php echo e(now()->format('H:i:s')); ?></span>
+            <span class="hidden lg:inline" x-data="{ time: new Date() }" x-init="setInterval(() => time = new Date(), 1000)" x-text="time.toLocaleTimeString('en-GB')"></span>
             <a href="<?php echo e(route('alerts.index')); ?>" class="rounded-full <?php echo e($openAlertCount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'); ?> px-3 py-1 text-xs font-semibold">
                 Open Alerts: <?php echo e($openAlertCount); ?>
 
@@ -30,5 +30,4 @@
             <span class="font-medium text-slate-700"><?php echo e(auth()->user()->name ?? 'Administrator'); ?></span>
         </div>
     </div>
-</header>
-<?php /**PATH /var/www/skripsi-poppy/resources/views/components/topbar.blade.php ENDPATH**/ ?>
+</header><?php /**PATH /var/www/skripsi-poppy/resources/views/components/topbar.blade.php ENDPATH**/ ?>

@@ -167,9 +167,9 @@
                         <tbody class="divide-y divide-slate-100 text-slate-700">
                             <?php $__currentLoopData = $latestDevices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $device): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <?php
-                                    $networkStatus = $device->latestNetworkCheck?->tcp_status ?? $device->firebird_connection_status ?? 'unknown';
+                                    $networkStatus = $device->display_firebird_status;
                                     $networkLatency = $device->latestNetworkCheck?->tcp_latency_ms;
-                                    $accurateProcessStatus = $device->latestAccurateProcessSnapshot?->process_status ?? $device->accurate_status ?? 'unknown';
+                                    $accurateProcessStatus = $device->display_accurate_status;
                                 ?>
                                 <tr>
                                     <td class="px-3 py-3">
@@ -202,7 +202,6 @@
 <?php $component = $__componentOriginal8c81617a70e11bcf247c4db924ab1b62; ?>
 <?php unset($__componentOriginal8c81617a70e11bcf247c4db924ab1b62); ?>
 <?php endif; ?>
-                                        <div class="mt-1 text-xs text-slate-500"><?php echo e($networkLatency !== null ? number_format($networkLatency, 0).' ms' : '-'); ?></div>
                                     </td>
                                     <td class="px-3 py-3"><?php if (isset($component)) { $__componentOriginal8c81617a70e11bcf247c4db924ab1b62 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal8c81617a70e11bcf247c4db924ab1b62 = $attributes; } ?>

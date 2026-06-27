@@ -186,11 +186,10 @@
                                         \Carbon\Carbon::setLocale('en');
                                     ?>
                                     <?php if($incident->status === 'resolved' && $incident->resolved_at): ?>
-                                        <?php echo e($duration->diffForHumans($incident->resolved_at, ['parts' => 2])); ?>
+                                        <?php echo e($duration->diffForHumans($incident->resolved_at, ['parts' => 2, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE])); ?>
 
                                     <?php else: ?>
-                                        <?php echo e($duration->diffForHumans(now(), ['parts' => 2])); ?>
-
+                                        <?php echo e($duration->diffForHumans(now(), ['parts' => 2, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE])); ?> ago
                                     <?php endif; ?>
                                     <?php \Carbon\Carbon::setLocale('id'); ?>
                                 <?php else: ?>
