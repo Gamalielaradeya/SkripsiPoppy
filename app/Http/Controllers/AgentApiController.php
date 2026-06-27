@@ -17,8 +17,22 @@ use Illuminate\Validation\Rule;
 
 class AgentApiController extends Controller
 {
+    private function gateCheck(): ?JsonResponse
+    {
+        if (! config('monitoring.remote_action.agent_api_enabled', false)) {
+            return response()->json([
+                'message' => 'Agent API is disabled. Enable it via Settings.',
+            ], 503);
+        }
+
+        return null;
+    }
+
     public function register(Request $request): JsonResponse
     {
+        if ($result = $this->gateCheck()) {
+            return $result;
+        }
         $validated = $request->validate([
             'agent_id' => ['required', 'string', 'max:64'],
             'hostname' => ['required', 'string', 'max:100'],
@@ -77,6 +91,9 @@ class AgentApiController extends Controller
 
     public function heartbeat(Request $request): JsonResponse
     {
+        if ($result = $this->gateCheck()) {
+            return $result;
+        }
         $validated = $request->validate([
             'agent_id' => ['required', 'string', 'max:64'],
             'hostname' => ['nullable', 'string', 'max:100'],
@@ -153,6 +170,9 @@ class AgentApiController extends Controller
 
     public function pendingCommands(Request $request): JsonResponse
     {
+        if ($result = $this->gateCheck()) {
+            return $result;
+        }
         $validated = $request->validate([
             'agent_id' => ['required', 'string', 'max:64'],
         ]);
@@ -220,6 +240,9 @@ class AgentApiController extends Controller
 
     public function commandResult(Request $request, RemoteAction $remoteAction): JsonResponse
     {
+        if ($result = $this->gateCheck()) {
+            return $result;
+        }
         $validated = $request->validate([
             'agent_id' => ['required', 'string', 'max:64'],
             'status' => ['required', Rule::in([RemoteAction::STATUS_SUCCEEDED, RemoteAction::STATUS_FAILED])],

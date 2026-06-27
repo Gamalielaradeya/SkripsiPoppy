@@ -7,9 +7,16 @@
     @php use App\Http\Controllers\SettingController; @endphp
 
     @if (session('status'))
-        <div class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900">
+        <div class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900" id="settings-status">
             {{ session('status') }}
         </div>
+        <meta http-equiv="refresh" content="1">
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var el = document.getElementById('settings-status');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        </script>
     @endif
 
     {{-- ═══ AMBANG PEMANTAUAN (Threshold) ═══ --}}

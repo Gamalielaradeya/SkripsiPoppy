@@ -274,10 +274,10 @@ class SettingController extends Controller
             static::setEnvValue($key, $value, $envPath);
         }
 
-        // Re-cache config supaya config('monitoring.xxx') baca nilai baru
-        Artisan::call('config:cache');
+        // Clear config cache supaya nilai baru langsung terbaca
+        Artisan::call('config:clear');
 
-        return redirect()->route('settings.index')->with('status', 'Pengaturan berhasil diperbarui. Konfigurasi .env telah disimpan dan config di-cache ulang.');
+        return redirect()->route('settings.index')->with('status', 'Pengaturan berhasil diperbarui. Refresh halaman jika nilai belum berubah.');
     }
 
     public function updateThresholds(Request $request): RedirectResponse
