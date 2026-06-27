@@ -40,6 +40,35 @@
             </form>
         </x-filter-panel>
 
+    @php $openCount = $alerts->getCollection()->where('status', 'open')->count(); $ackCount = $alerts->getCollection()->whereIn('status', ['open', 'acknowledged'])->count(); @endphp
+
+    @if ($alerts->isNotEmpty() && ($openCount > 0 || $ackCount > 0))
+        <div class="flex flex-wrap gap-2">
+            @if ($openCount > 0)
+                <form method="POST" action="{{ route('alerts.acknowledge-all') }}">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                        Acknowledge All ({{ $openCount }})
+                    </button>
+                </form>
+            @endif
+            @if ($ackCount > 0)
+                <form method="POST" action="{{ route('alerts.resolve-all') }}">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">
+                        Resolve All ({{ $ackCount }})
+                    </button>
+                </form>
+            @endif
+        </div>
+    @endif
+
+    @if (session('status'))
+        <div class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900">
+            {{ session('status') }}
+        </div>
+    @endif
+
     @if ($alerts->isEmpty())
         <x-empty-state
             title="Belum ada alert aktif."

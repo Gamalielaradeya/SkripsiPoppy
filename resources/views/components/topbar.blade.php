@@ -22,7 +22,7 @@
         </div>
 
         <div class="flex shrink-0 items-center gap-3 text-sm text-slate-500">
-            <span class="hidden lg:inline">Last refresh: {{ now()->format('H:i:s') }}</span>
+            <span class="hidden lg:inline" x-data="{ time: new Date() }" x-init="setInterval(() => time = new Date(), 1000)" x-text="time.toLocaleTimeString('en-GB')"></span>
             <a href="{{ route('alerts.index') }}" class="rounded-full {{ $openAlertCount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600' }} px-3 py-1 text-xs font-semibold">
                 Open Alerts: {{ $openAlertCount }}
             </a>

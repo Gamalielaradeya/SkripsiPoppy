@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/alerts/{id}', [AlertController::class, 'show'])->name('alerts.show');
     Route::post('/alerts/{alert}/acknowledge', [AlertController::class, 'acknowledge'])->name('alerts.acknowledge');
     Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])->name('alerts.resolve');
+    Route::post('/alerts/acknowledge-all', [AlertController::class, 'acknowledgeAll'])->name('alerts.acknowledge-all');
+    Route::post('/alerts/resolve-all', [AlertController::class, 'resolveAll'])->name('alerts.resolve-all');
 
     Route::get('/remote-actions', [RemoteActionController::class, 'index'])->name('remote-actions.index');
     Route::get('/remote-actions/{remoteAction}/rdp-file', [RemoteActionController::class, 'downloadRdpFile'])->name('remote-actions.rdp-file');

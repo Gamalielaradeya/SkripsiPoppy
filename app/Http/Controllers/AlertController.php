@@ -88,4 +88,32 @@ class AlertController extends Controller
 
         return redirect()->route('alerts.show', $alert);
     }
+
+    public function acknowledgeAll(): RedirectResponse
+    {
+        $count = Alert::query()
+            ->where('status', 'open')
+            ->update([
+                'status' => 'acknowledged',
+                'acknowledged_by' => Auth::id(),
+                'acknowledged_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->route('alerts.index')->with('status', $count.' alert(s) acknowledged.');
+    }
+
+    public function resolveAll(): RedirectResponse
+    {
+        $count = Alert::query()
+            ->whereIn('status', ['open', 'acknowledged'])
+            ->update([
+                'status' => 'resolved',
+                'resolved_by' => Auth::id(),
+                'resolved_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->route('alerts.index')->with('status', $count.' alert(s) resolved.');
+    }
 }

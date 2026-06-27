@@ -28,7 +28,7 @@
                         <form method="POST" action="{{ route('alerts.acknowledge', $alert) }}">
                             @csrf
                             <button type="submit" class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
-                                Akui
+                                Acknowledge
                             </button>
                         </form>
                     @endif
@@ -37,7 +37,7 @@
                         <form method="POST" action="{{ route('alerts.resolve', $alert) }}">
                             @csrf
                             <button type="submit" class="inline-flex items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">
-                                Selesaikan
+                                Resolve
                             </button>
                         </form>
                     @endif
