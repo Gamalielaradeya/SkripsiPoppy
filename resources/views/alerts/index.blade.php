@@ -38,30 +38,55 @@
                     <a href="{{ route('alerts.index') }}" class="inline-flex items-center rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Reset</a>
                 </div>
             </form>
+
+            @php $openCount = $alerts->getCollection()->where('status', 'open')->count(); $ackCount = $alerts->getCollection()->whereIn('status', ['open', 'acknowledged'])->count(); @endphp
+
+            @if ($alerts->isNotEmpty() && ($openCount > 0 || $ackCount > 0))
+                <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+                    <span class="text-xs font-medium uppercase tracking-wide text-slate-400">Bulk Actions:</span>
+                    @if ($openCount > 0)
+                        <div x-data="{ show: false }">
+                            <button type="button" x-on:click="show = true" class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50">
+                                Acknowledge All ({{ $openCount }})
+                            </button>
+                            <div x-cloak x-show="show" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
+                                <div class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl" x-on:click.outside="show = false">
+                                    <h3 class="text-base font-semibold text-slate-950">Acknowledge All Alerts</h3>
+                                    <p class="mt-2 text-sm text-slate-600">This will acknowledge {{ $openCount }} open alert(s). Are you sure?</p>
+                                    <div class="mt-5 flex justify-end gap-3">
+                                        <button type="button" x-on:click="show = false" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
+                                        <form method="POST" action="{{ route('alerts.acknowledge-all') }}">
+                                            @csrf
+                                            <button type="submit" class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">Confirm</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @if ($ackCount > 0)
+                        <div x-data="{ show: false }">
+                            <button type="button" x-on:click="show = true" class="inline-flex items-center justify-center rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-800">
+                                Resolve All ({{ $ackCount }})
+                            </button>
+                            <div x-cloak x-show="show" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
+                                <div class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl" x-on:click.outside="show = false">
+                                    <h3 class="text-base font-semibold text-slate-950">Resolve All Alerts</h3>
+                                    <p class="mt-2 text-sm text-slate-600">This will resolve {{ $ackCount }} open/acknowledged alert(s). Are you sure?</p>
+                                    <div class="mt-5 flex justify-end gap-3">
+                                        <button type="button" x-on:click="show = false" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
+                                        <form method="POST" action="{{ route('alerts.resolve-all') }}">
+                                            @csrf
+                                            <button type="submit" class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">Confirm</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
         </x-filter-panel>
-
-    @php $openCount = $alerts->getCollection()->where('status', 'open')->count(); $ackCount = $alerts->getCollection()->whereIn('status', ['open', 'acknowledged'])->count(); @endphp
-
-    @if ($alerts->isNotEmpty() && ($openCount > 0 || $ackCount > 0))
-        <div class="flex flex-wrap gap-2">
-            @if ($openCount > 0)
-                <form method="POST" action="{{ route('alerts.acknowledge-all') }}">
-                    @csrf
-                    <button type="submit" class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
-                        Acknowledge All ({{ $openCount }})
-                    </button>
-                </form>
-            @endif
-            @if ($ackCount > 0)
-                <form method="POST" action="{{ route('alerts.resolve-all') }}">
-                    @csrf
-                    <button type="submit" class="inline-flex items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">
-                        Resolve All ({{ $ackCount }})
-                    </button>
-                </form>
-            @endif
-        </div>
-    @endif
 
     @if (session('status'))
         <div class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900">
