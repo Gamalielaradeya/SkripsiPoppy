@@ -11,8 +11,8 @@
         />
     @else
         @php
-            $networkStatus = $latestNetworkCheck?->tcp_status ?? $device->firebird_connection_status ?? 'unknown';
-            $accurateProcessStatus = $latestAccurateProcess?->process_status ?? $device->accurate_status ?? 'unknown';
+            $networkStatus = $latestNetworkCheck?->tcp_status ?? $device->display_firebird_status;
+            $accurateProcessStatus = $latestAccurateProcess?->process_status ?? $device->display_accurate_status;
             $rdpTargetIp = $device->ip_zerotier ?: $device->ip_local;
             $pingTargetIp = $device->ip_zerotier ?: $device->ip_local;
         @endphp

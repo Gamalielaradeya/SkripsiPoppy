@@ -53,6 +53,28 @@ class Device extends Model
         );
     }
 
+    protected function displayFirebirdStatus(): Attribute
+    {
+        return Attribute::get(function (): string {
+            if ($this->display_status !== 'online') {
+                return 'offline';
+            }
+
+            return $this->firebird_connection_status ?? 'unknown';
+        });
+    }
+
+    protected function displayAccurateStatus(): Attribute
+    {
+        return Attribute::get(function (): string {
+            if ($this->display_status !== 'online') {
+                return 'offline';
+            }
+
+            return $this->accurate_status ?? 'unknown';
+        });
+    }
+
     public function agentCredentials(): HasMany
     {
         return $this->hasMany(AgentCredential::class);

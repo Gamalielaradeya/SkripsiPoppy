@@ -53,9 +53,9 @@
                         <tbody class="divide-y divide-slate-100 text-slate-700">
                             @foreach ($latestDevices as $device)
                                 @php
-                                    $networkStatus = $device->latestNetworkCheck?->tcp_status ?? $device->firebird_connection_status ?? 'unknown';
+                                    $networkStatus = $device->display_firebird_status;
                                     $networkLatency = $device->latestNetworkCheck?->tcp_latency_ms;
-                                    $accurateProcessStatus = $device->latestAccurateProcessSnapshot?->process_status ?? $device->accurate_status ?? 'unknown';
+                                    $accurateProcessStatus = $device->display_accurate_status;
                                 @endphp
                                 <tr>
                                     <td class="px-3 py-3">
