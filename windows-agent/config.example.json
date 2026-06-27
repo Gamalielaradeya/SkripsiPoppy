@@ -1,0 +1,22 @@
+{
+  "api_base_url": "http://127.0.0.1:8000/api/agent",
+  "agent_version": "1.0.0",
+  "runtime_path": "C:\\ProgramData\\CentralizedLogMonitoring",
+  "monitored_drive": "C:",
+  "rdp_port": 3389,
+  "firebird_check_enabled": false,
+  "firebird_host": "",
+  "firebird_port": 3051,
+  "firebird_timeout_seconds": 3,
+  "accurate_process_check_enabled": false,
+  "accurate_process_name": "accurate.exe",
+  "request_timeout_seconds": 15,
+  "command_poll_enabled": false,
+  "command_poll_interval_seconds": 30,
+  "restart_delay_seconds": 30,
+  "syslog_enabled": false,
+  "syslog_host": "10.147.20.5",
+  "syslog_port": 5514,
+  "syslog_protocol": "udp",
+  "syslog_app_name": "centralized-monitoring-agent"
+}
