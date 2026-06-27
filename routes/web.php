@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/incidents', [IncidentController::class, 'index'])->name('incidents.index');
     Route::get('/incidents/{id}', [IncidentController::class, 'show'])->name('incidents.show');
+    Route::post('/incidents/{incident}/acknowledge', [IncidentController::class, 'acknowledge'])->name('incidents.acknowledge');
+    Route::post('/incidents/{incident}/resolve', [IncidentController::class, 'resolve'])->name('incidents.resolve');
 
     Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
     Route::get('/alerts/{id}', [AlertController::class, 'show'])->name('alerts.show');

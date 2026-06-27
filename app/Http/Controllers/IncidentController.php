@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Incident;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class IncidentController extends Controller
@@ -31,9 +33,37 @@ class IncidentController extends Controller
 
     public function show(string $id): View
     {
+        $incident = Incident::query()
+            ->with(['device', 'alerts'])
+            ->find($id);
+
         return view('incidents.show', [
-            'incident' => Incident::query()->with('alerts')->find($id),
+            'incident' => $incident,
             'id' => $id,
         ]);
+    }
+
+    public function acknowledge(Incident $incident): RedirectResponse
+    {
+        if ($incident->status === 'open') {
+            $incident->forceFill([
+                'status' => 'acknowledged',
+                'acknowledged_at' => now(),
+            ])->save();
+        }
+
+        return redirect()->route('incidents.show', $incident);
+    }
+
+    public function resolve(Incident $incident): RedirectResponse
+    {
+        if (in_array($incident->status, ['open', 'acknowledged'], true)) {
+            $incident->forceFill([
+                'status' => 'resolved',
+                'resolved_at' => now(),
+            ])->save();
+        }
+
+        return redirect()->route('incidents.show', $incident);
     }
 }
