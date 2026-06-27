@@ -99,29 +99,75 @@
                                 <td class="px-4 py-3"><x-status-badge :status="$device->display_status" /></td>
                                 <td class="px-4 py-3">{{ $device->last_seen_at?->diffForHumans() ?? '-' }}</td>
                                 <td class="px-4 py-3">
-                                    <div class="flex justify-end gap-2">
-                                        <x-action-button :href="route('devices.show', $device)" variant="secondary">Detail</x-action-button>
-                                        @if ($device->display_status === 'online' && ($device->ip_zerotier || $device->ip_local))
-                                            <form method="POST" action="{{ route('devices.remote-actions.rdp', $device) }}" class="contents">
-                                                @csrf
-                                                <x-action-button type="submit" variant="ghost">RDP</x-action-button>
-                                            </form>
-                                        @else
-                                            <x-action-button disabled variant="ghost">RDP</x-action-button>
-                                        @endif
-                                        @if ($device->display_status === 'online' && config('monitoring.remote_action.restart_enabled', false))
-                                            <a href="{{ route('devices.show', $device) }}#restart" class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">Restart</a>
-                                        @else
-                                            <x-action-button disabled variant="danger">Restart</x-action-button>
-                                        @endif
-                                        @if ($device->display_status === 'online' && ($device->ip_zerotier || $device->ip_local))
-                                            <form method="POST" action="{{ route('devices.remote-actions.ping', $device) }}" class="contents">
-                                                @csrf
-                                                <x-action-button type="submit" variant="ghost">Ping</x-action-button>
-                                            </form>
-                                        @else
-                                            <x-action-button disabled variant="ghost">Ping</x-action-button>
-                                        @endif
+                                    <div
+                                        class="flex justify-end"
+                                        x-data="{ open: false }"
+                                        x-on:click.outside="open = false"
+                                    >
+                                        <div class="relative inline-flex rounded-md">
+                                            {{-- Tombol utama: Detail — langsung buka halaman device --}}
+                                            <a
+                                                href="{{ route('devices.show', $device) }}"
+                                                class="inline-flex items-center gap-1.5 rounded-l-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                                            >
+                                                Detail
+                                            </a>
+
+                                            {{-- Tombol panah dropdown --}}
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center rounded-r-md border border-l-0 border-slate-200 bg-white px-2 py-2 text-sm text-slate-500 transition hover:bg-slate-50"
+                                                x-on:click="open = !open"
+                                            >
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            </button>
+
+                                            {{-- Menu dropdown --}}
+                                            <div
+                                                x-cloak
+                                                x-show="open"
+                                                x-transition.opacity.duration.150ms
+                                                class="absolute right-0 top-full z-50 mt-1 w-40 rounded-md border border-slate-200 bg-white py-1 shadow-lg"
+                                            >
+                                                {{-- RDP --}}
+                                                @if ($device->display_status === 'online' && ($device->ip_zerotier || $device->ip_local))
+                                                    <form method="POST" action="{{ route('devices.remote-actions.rdp', $device) }}">
+                                                        @csrf
+                                                        <button type="submit" class="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
+                                                            Remote Desktop
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="block px-3 py-2 text-sm text-slate-400">Remote Desktop</span>
+                                                @endif
+
+                                                {{-- Ping --}}
+                                                @if ($device->display_status === 'online' && ($device->ip_zerotier || $device->ip_local))
+                                                    <form method="POST" action="{{ route('devices.remote-actions.ping', $device) }}">
+                                                        @csrf
+                                                        <button type="submit" class="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">
+                                                            Ping Test
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="block px-3 py-2 text-sm text-slate-400">Ping Test</span>
+                                                @endif
+
+                                                {{-- Restart --}}
+                                                @if ($device->display_status === 'online' && config('monitoring.remote_action.restart_enabled', false))
+                                                    <a
+                                                        href="{{ route('devices.show', $device) }}#restart"
+                                                        class="block px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                                    >
+                                                        Restart
+                                                    </a>
+                                                @else
+                                                    <span class="block px-3 py-2 text-sm text-slate-400">Restart</span>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
