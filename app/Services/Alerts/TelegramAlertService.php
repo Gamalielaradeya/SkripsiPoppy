@@ -123,7 +123,7 @@ class TelegramAlertService
             return null;
         }
 
-        return 'telegram:configured';
+        return (string) config('monitoring.telegram.recipient_name', 'Admin IT');
     }
 
     private function safeError(string $message): string
