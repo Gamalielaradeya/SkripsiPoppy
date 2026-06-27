@@ -17,8 +17,8 @@ class DashboardController extends Controller
         return view('dashboard.index', [
             'totalDevices' => $devices->count(),
             'onlineDevices' => $devices->where('display_status', 'online')->count(),
-            'firebirdConnectedDevices' => Device::query()->where('firebird_connection_status', 'connected')->count(),
-            'accurateRunningDevices' => Device::query()->where('accurate_status', 'running')->count(),
+            'firebirdConnectedDevices' => $devices->where('display_firebird_status', 'connected')->count(),
+            'accurateRunningDevices' => $devices->where('display_accurate_status', 'running')->count(),
             'openAlerts' => Alert::query()->where('status', 'open')->count(),
             'auditEventsToday' => AccurateAuditEvent::query()->whereDate('activity_time', now())->count(),
             'openIncidents' => Incident::query()->where('status', 'open')->count(),
