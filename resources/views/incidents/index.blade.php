@@ -17,11 +17,11 @@
                 </label>
                 <label class="block">
                     <span class="text-xs font-medium text-slate-600">Target Device</span>
-                    <input name="target" value="{{ request('target') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Device/server">
+                    <x-autocomplete-input name="target" :value="request('target')" placeholder="Device/server" :endpoint="route('search.incident-targets')" label="Target Device" />
                 </label>
                 <label class="block">
                     <span class="text-xs font-medium text-slate-600">Incident Type</span>
-                    <input name="incident_type" value="{{ request('incident_type') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Code/type">
+                    <x-autocomplete-input name="incident_type" :value="request('incident_type')" placeholder="Code/type" :endpoint="route('search.incident-types')" label="Incident Type" />
                 </label>
                 <label class="block">
                     <span class="text-xs font-medium text-slate-600">Status</span>

@@ -27,11 +27,11 @@
                 </label>
                 <label class="block">
                     <span class="text-xs font-medium text-slate-600">Target</span>
-                    <input name="target" value="{{ request('target') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Device/server">
+                    <x-autocomplete-input name="target" :value="request('target')" placeholder="Device/server" :endpoint="route('search.alert-targets')" label="Target" />
                 </label>
                 <label class="block">
                     <span class="text-xs font-medium text-slate-600">Keyword</span>
-                    <input name="keyword" value="{{ request('keyword') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Judul, ringkasan, atau aturan">
+                    <x-autocomplete-input name="keyword" :value="request('keyword')" placeholder="Judul, ringkasan, atau aturan" :endpoint="route('search.alert-keywords')" label="Keyword" />
                 </label>
                 <div class="flex items-end gap-2">
                     <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">Terapkan Filter</button>

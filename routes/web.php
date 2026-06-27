@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\RemoteActionController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -54,4 +55,13 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings/thresholds', [SettingController::class, 'updateThresholds'])->name('settings.thresholds.update');
     Route::post('/settings/env', [SettingController::class, 'updateEnv'])->name('settings.env.update');
+
+    // Autocomplete API for filter inputs
+    Route::prefix('api/search')->group(function (): void {
+        Route::get('devices', [SearchController::class, 'devices'])->name('search.devices');
+        Route::get('alert-targets', [SearchController::class, 'alertTargets'])->name('search.alert-targets');
+        Route::get('alert-keywords', [SearchController::class, 'alertKeywords'])->name('search.alert-keywords');
+        Route::get('incident-targets', [SearchController::class, 'incidentTargets'])->name('search.incident-targets');
+        Route::get('incident-types', [SearchController::class, 'incidentTypes'])->name('search.incident-types');
+    });
 });
