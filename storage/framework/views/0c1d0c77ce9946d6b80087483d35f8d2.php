@@ -221,21 +221,21 @@
 
         <?php if (isset($component)) { $__componentOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal3e6f313bf3a7b9f1945492e51fbe4384 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'ZeroTier','description' => 'Jaringan privat untuk komunikasi VPS dan klien Windows.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.info-panel','data' => ['title' => 'ZeroTier','description' => 'Jaringan privat untuk komunikasi Server dan klien Windows.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('info-panel'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'ZeroTier','description' => 'Jaringan privat untuk komunikasi VPS dan klien Windows.']); ?>
+<?php $component->withAttributes(['title' => 'ZeroTier','description' => 'Jaringan privat untuk komunikasi Server dan klien Windows.']); ?>
             <dl class="space-y-3 text-sm">
                 <div class="flex items-center justify-between gap-4">
                     <dt class="text-slate-500">Network ID</dt>
                     <dd class="font-mono text-xs font-medium text-slate-900">e4da7455b2b688af</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4">
-                    <dt class="text-slate-500">Interface VPS</dt>
+                    <dt class="text-slate-500">Interface Server</dt>
                     <dd class="font-mono text-xs font-medium text-slate-900">ztwfumfxi5</dd>
                 </div>
                 <div class="rounded-md bg-slate-50 p-3 text-xs text-slate-500">

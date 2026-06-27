@@ -1,5 +1,5 @@
-<?php $__env->startSection('title', $alert?->title ?? 'Alert Detail'); ?>
-<?php $__env->startSection('description', 'Detail alert, evidence, impact, recommended action, dan riwayat notifikasi.'); ?>
+<?php $__env->startSection('title', $alert?->title ?? 'Detail Alert'); ?>
+<?php $__env->startSection('description', 'Detail alert, bukti, dampak, tindakan yang disarankan, dan riwayat notifikasi.'); ?>
 
 <?php $__env->startSection('content'); ?>
     <?php if(! $alert): ?>
@@ -80,7 +80,7 @@
                         <form method="POST" action="<?php echo e(route('alerts.acknowledge', $alert)); ?>">
                             <?php echo csrf_field(); ?>
                             <button type="submit" class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
-                                Acknowledge
+                                Akui
                             </button>
                         </form>
                     <?php endif; ?>
@@ -89,7 +89,7 @@
                         <form method="POST" action="<?php echo e(route('alerts.resolve', $alert)); ?>">
                             <?php echo csrf_field(); ?>
                             <button type="submit" class="inline-flex items-center justify-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800">
-                                Resolve
+                                Selesaikan
                             </button>
                         </form>
                     <?php endif; ?>
@@ -103,42 +103,42 @@
                     <div class="text-xs text-slate-500"><?php echo e($alert->target_type); ?> / <?php echo e($alert->target_id ?: '-'); ?></div>
                 </div>
                 <div>
-                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Detected By</div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Terdeteksi Oleh</div>
                     <div class="mt-1 font-medium text-slate-950"><?php echo e($alert->detected_by); ?></div>
                     <div class="text-xs text-slate-500"><?php echo e($alert->source ?: '-'); ?></div>
                 </div>
                 <div>
-                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Rule</div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Aturan</div>
                     <div class="mt-1 font-medium text-slate-950"><?php echo e($alert->alert_code); ?></div>
                     <div class="text-xs text-slate-500"><?php echo e($alert->category); ?></div>
                 </div>
                 <div>
-                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Lifecycle</div>
-                    <div class="mt-1 text-slate-700">First: <?php echo e($alert->first_detected_at?->format('Y-m-d H:i:s') ?? '-'); ?></div>
-                    <div class="text-xs text-slate-500">Last: <?php echo e($alert->last_detected_at?->format('Y-m-d H:i:s') ?? '-'); ?></div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Riwayat</div>
+                    <div class="mt-1 text-slate-700">Pertama: <?php echo e($alert->first_detected_at?->format('Y-m-d H:i:s') ?? '-'); ?></div>
+                    <div class="text-xs text-slate-500">Terakhir: <?php echo e($alert->last_detected_at?->format('Y-m-d H:i:s') ?? '-'); ?></div>
                 </div>
             </div>
         </section>
 
         <section class="grid gap-5 lg:grid-cols-2">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Evidence Summary</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Ringkasan Bukti</h3>
                 <p class="mt-3 text-sm leading-6 text-slate-700"><?php echo e($alert->evidence_summary ?: '-'); ?></p>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Impact</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Dampak</h3>
                 <p class="mt-3 text-sm leading-6 text-slate-700"><?php echo e($alert->impact); ?></p>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Recommended Action</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Tindakan yang Disarankan</h3>
                 <p class="mt-3 text-sm leading-6 text-slate-700"><?php echo e($alert->recommended_action); ?></p>
             </div>
         </section>
 
         <section>
             <div class="mb-3 flex items-center justify-between">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Evidence Rows</h3>
-                <span class="text-xs text-slate-500"><?php echo e($alert->evidences->count()); ?> row(s)</span>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Baris Bukti</h3>
+                <span class="text-xs text-slate-500"><?php echo e($alert->evidences->count()); ?> baris</span>
             </div>
             <?php if (isset($component)) { $__componentOriginalc8463834ba515134d5c98b88e1a9dc03 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalc8463834ba515134d5c98b88e1a9dc03 = $attributes; } ?>
@@ -152,11 +152,11 @@
 <?php $component->withAttributes([]); ?>
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Key</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Value</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Type</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Source</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Measured At</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kunci</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Nilai</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Tipe</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Sumber</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Diukur Pada</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
@@ -170,7 +170,7 @@
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">No evidence stored.</td>
+                            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">Tidak ada bukti tersimpan.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -188,8 +188,8 @@
 
         <section>
             <div class="mb-3 flex items-center justify-between">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Notification History</h3>
-                <span class="text-xs text-slate-500"><?php echo e($alert->notifications->count()); ?> attempt(s)</span>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Riwayat Notifikasi</h3>
+                <span class="text-xs text-slate-500"><?php echo e($alert->notifications->count()); ?> percobaan</span>
             </div>
             <?php if (isset($component)) { $__componentOriginalc8463834ba515134d5c98b88e1a9dc03 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalc8463834ba515134d5c98b88e1a9dc03 = $attributes; } ?>
@@ -203,11 +203,11 @@
 <?php $component->withAttributes([]); ?>
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Channel</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kanal</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Recipient</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Sent At</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Error</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Penerima</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Dikirim Pada</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kesalahan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
@@ -240,7 +240,7 @@
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">No notification attempt recorded.</td>
+                            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">Tidak ada percobaan notifikasi tercatat.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -258,35 +258,34 @@
 
         <section class="grid gap-5 lg:grid-cols-3">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Related Device</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Perangkat Terkait</h3>
                 <?php if($alert->device): ?>
                     <a href="<?php echo e(route('devices.show', $alert->device)); ?>" class="mt-3 block font-medium text-sky-700 hover:text-sky-800"><?php echo e($alert->device->display_name); ?></a>
                     <div class="mt-1 text-sm text-slate-600"><?php echo e($alert->device->hostname); ?> / <?php echo e($alert->device->windows_user ?: '-'); ?></div>
                 <?php else: ?>
-                    <p class="mt-3 text-sm text-slate-500">No device relation.</p>
+                    <p class="mt-3 text-sm text-slate-500">Tidak ada relasi perangkat.</p>
                 <?php endif; ?>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Related Accurate Audit</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Audit Accurate Terkait</h3>
                 <?php if($alert->accurateAuditEvent): ?>
                     <a href="<?php echo e(route('accurate-audit.show', $alert->accurateAuditEvent)); ?>" class="mt-3 block font-medium text-sky-700 hover:text-sky-800">Audit #<?php echo e($alert->accurateAuditEvent->accurate_audit_id); ?></a>
                     <div class="mt-1 text-sm text-slate-600"><?php echo e($alert->accurateAuditEvent->transaction_type ?: '-'); ?> / <?php echo e($alert->accurateAuditEvent->accurate_username ?: '-'); ?></div>
                 <?php else: ?>
-                    <p class="mt-3 text-sm text-slate-500">No Accurate audit relation.</p>
+                    <p class="mt-3 text-sm text-slate-500">Tidak ada relasi audit Accurate.</p>
                 <?php endif; ?>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Related Log</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Log Terkait</h3>
                 <?php if($alert->log): ?>
                     <a href="<?php echo e(route('advanced-logs.show', $alert->log)); ?>" class="mt-3 block font-medium text-sky-700 hover:text-sky-800">Log #<?php echo e($alert->log->id); ?></a>
                     <div class="mt-1 text-sm text-slate-600"><?php echo e($alert->log->source ?: '-'); ?> / <?php echo e($alert->log->event_type ?: '-'); ?></div>
                 <?php else: ?>
-                    <p class="mt-3 text-sm text-slate-500">No raw log relation.</p>
+                    <p class="mt-3 text-sm text-slate-500">Tidak ada relasi log mentah.</p>
                 <?php endif; ?>
             </div>
         </section>
         </div>
     <?php endif; ?>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /var/www/skripsi-poppy/resources/views/alerts/show.blade.php ENDPATH**/ ?>
