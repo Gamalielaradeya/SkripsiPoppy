@@ -19,6 +19,32 @@
         </script>
     @endif
 
+    @php
+        $thresholdSuffixes = [
+            'heartbeat_warning_minutes' => 'menit',
+            'heartbeat_critical_minutes' => 'menit',
+            'cpu_warning_threshold' => '%',
+            'cpu_critical_threshold' => '%',
+            'ram_warning_threshold' => '%',
+            'ram_critical_threshold' => '%',
+            'disk_warning_threshold' => '%',
+            'disk_critical_threshold' => '%',
+            'firebird_latency_warning_ms' => 'ms',
+            'firebird_latency_critical_ms' => 'ms',
+            'alert_cooldown_minutes' => 'menit',
+            'telegram_cooldown_minutes' => 'menit',
+        ];
+
+        $envSuffixes = [
+            'TELEGRAM_ALERT_COOLDOWN_MINUTES' => 'menit',
+            'ACCURATE_FIREBIRD_PORT' => 'port',
+            'ACCURATE_FIREBIRD_HOST' => 'host',
+            'ACCURATE_AUDIT_SYNC_LIMIT' => 'baris',
+            'REMOTE_ACTION_COMMAND_EXPIRY_MINUTES' => 'menit',
+            'REMOTE_RESTART_DELAY_SECONDS' => 'detik',
+        ];
+    @endphp
+
     {{-- ═══ AMBANG PEMANTAUAN (Threshold) ═══ --}}
     <div class="mb-3 flex items-center justify-between">
         <h2 class="text-lg font-semibold text-slate-950">Ambang Pemantauan</h2>
@@ -35,24 +61,29 @@
                 <x-info-panel :title="$groupLabels[$group] ?? ucfirst($group)" description="">
                     <div class="space-y-3">
                         @foreach ($items as $setting)
-                            @php $label = $labels[$setting->key] ?? $setting->key; @endphp
+                            @php $label = $labels[$setting->key] ?? $setting->key; $suffix = $thresholdSuffixes[$setting->key] ?? ''; @endphp
                             <div class="flex items-center justify-between gap-3">
                                 <div class="min-w-0 flex-1">
                                     <label for="thr_{{ $setting->id }}" class="text-sm font-medium text-slate-700">{{ $label }}</label>
                                     <p class="text-xs text-slate-500">{{ $setting->description }}</p>
                                 </div>
-                                <input
-                                    id="thr_{{ $setting->id }}"
-                                    type="hidden"
-                                    name="settings[{{ $loop->parent->index * 20 + $loop->index }}][key]"
-                                    value="{{ $setting->key }}"
-                                    readonly
-                                >
-                                <input
-                                    name="settings[{{ $loop->parent->index * 20 + $loop->index }}][value]"
-                                    value="{{ $setting->value }}"
-                                    class="w-24 rounded-md border border-slate-200 px-2 py-1.5 font-mono text-xs text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
-                                >
+                                <div class="flex items-center gap-1.5">
+                                    <input
+                                        id="thr_{{ $setting->id }}"
+                                        type="hidden"
+                                        name="settings[{{ $loop->parent->index * 20 + $loop->index }}][key]"
+                                        value="{{ $setting->key }}"
+                                        readonly
+                                    >
+                                    <input
+                                        name="settings[{{ $loop->parent->index * 20 + $loop->index }}][value]"
+                                        value="{{ $setting->value }}"
+                                        class="w-24 rounded-md border border-slate-200 px-2 py-1.5 font-mono text-xs text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                                    >
+                                    @if ($suffix)
+                                        <span class="text-xs text-slate-500">{{ $suffix }}</span>
+                                    @endif
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -121,12 +152,18 @@
                                         </button>
                                     </div>
                                 @else
-                                    <input
-                                        type="text"
-                                        name="env[{{ $loop->parent->index * 20 + $loop->index }}][value]"
-                                        value="{{ $setting['value'] }}"
-                                        class="w-48 rounded-md border border-slate-200 px-2 py-1.5 font-mono text-xs text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
-                                    >
+                                    <div class="flex items-center gap-1.5">
+                                        <input
+                                            type="text"
+                                            name="env[{{ $loop->parent->index * 20 + $loop->index }}][value]"
+                                            value="{{ $setting['value'] }}"
+                                            class="w-48 rounded-md border border-slate-200 px-2 py-1.5 font-mono text-xs text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                                        >
+                                        @php $envSuffix = $envSuffixes[$setting['key']] ?? null; @endphp
+                                        @if ($envSuffix)
+                                            <span class="text-xs text-slate-500">{{ $envSuffix }}</span>
+                                        @endif
+                                    </div>
                                 @endif
                             </div>
                         @endforeach
