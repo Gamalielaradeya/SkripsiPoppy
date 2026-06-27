@@ -16,10 +16,10 @@ class DetectAlertsCommand extends Command
         $summary = $detectionService->detect();
 
         $this->info(sprintf(
-            'Alert detection complete. created=%d updated=%d skipped=%d notifications=%d',
+            'Alert detection complete. created=%d updated=%d resolved=%d notifications=%d',
             $summary['created'],
             $summary['updated'],
-            $summary['skipped'],
+            $summary['resolved'],
             $summary['notifications'],
         ));
 

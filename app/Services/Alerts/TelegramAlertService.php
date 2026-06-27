@@ -47,7 +47,12 @@ class TelegramAlertService
         }
 
         if ($response->successful() && $response->json('ok') !== false) {
-            return $this->record($alert, $message, 'sent', now());
+            $result = $this->record($alert, $message, 'sent', now());
+
+            // Prevent flooding Telegram with many alerts at once.
+            usleep(800_000);
+
+            return $result;
         }
 
         return $this->record(

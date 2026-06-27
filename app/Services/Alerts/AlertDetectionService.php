@@ -32,15 +32,19 @@ class AlertDetectionService
         $summary = [
             'created' => 0,
             'updated' => 0,
-            'skipped' => 0,
+            'resolved' => 0,
             'notifications' => 0,
         ];
+
+        // Track which dedupe keys are active in this detection run.
+        $activeDedupeKeys = [];
 
         Device::query()
             ->where('is_active', true)
             ->orderBy('id')
-            ->each(function (Device $device) use (&$summary): void {
+            ->each(function (Device $device) use (&$summary, &$activeDedupeKeys): void {
                 foreach ($this->deviceRules($device) as $alertPayload) {
+                    $activeDedupeKeys[] = $this->dedupeKey($alertPayload);
                     $this->recordResult($summary, $this->raise($alertPayload));
                 }
             });
@@ -49,9 +53,25 @@ class AlertDetectionService
             ->whereNotNull('transaction_type')
             ->whereRaw('UPPER(TRIM(transaction_type)) = ?', ['DELETE'])
             ->orderBy('id')
-            ->each(function (AccurateAuditEvent $event) use (&$summary): void {
-                $this->recordResult($summary, $this->raise($this->auditDeletePayload($event)));
+            ->each(function (AccurateAuditEvent $event) use (&$summary, &$activeDedupeKeys): void {
+                $payload = $this->auditDeletePayload($event);
+                $activeDedupeKeys[] = $this->dedupeKey($payload);
+                $this->recordResult($summary, $this->raise($payload));
             });
+
+        // Auto-resolve: any open alert whose condition is NO LONGER present gets
+        // resolved so it can be re-triggered as a fresh occurrence later.
+        if ($activeDedupeKeys !== []) {
+            $resolved = Alert::query()
+                ->whereIn('status', ['open', 'acknowledged'])
+                ->whereNotIn('dedupe_key', array_unique($activeDedupeKeys))
+                ->update([
+                    'status' => 'resolved',
+                    'resolved_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            $summary['resolved'] = $resolved;
+        }
 
         return $summary;
     }
@@ -421,30 +441,41 @@ class AlertDetectionService
         $dedupeKey = $this->dedupeKey($payload);
         $existing = Alert::query()
             ->where('dedupe_key', $dedupeKey)
-            ->whereIn('status', ['open', 'acknowledged'])
             ->latest('last_detected_at')
             ->first();
 
         if ($existing) {
-            $cooldownActive = ($existing->last_detected_at ?: $existing->detected_at)?->greaterThanOrEqualTo(
-                $now->copy()->subMinutes($this->intThreshold('alert_cooldown_minutes')),
-            );
+            // Resolved alert triggered again → create a fresh occurrence so it
+            // re-notifies. Stale resolved alerts are left alone.
+            if ($existing->status === 'resolved') {
+                goto create_new;
+            }
 
             $existing->forceFill([
                 'last_detected_at' => $now,
                 'evidence_summary' => $payload['evidence_summary'],
+                'status' => $existing->status === 'resolved' ? 'open' : $existing->status,
             ])->save();
 
-            if ($cooldownActive) {
-                return ['status' => 'skipped', 'notified' => false];
+            // "Notify and forget": a dedupe key gets at most ONE notification
+            // ever. Future runs only update the record silently.
+            $alreadyNotified = $existing->notifications()
+                ->where('status', 'sent')
+                ->exists();
+
+            if ($alreadyNotified) {
+                return ['status' => 'updated', 'notified' => false];
             }
 
+            // First-time notification for a previously un-notified alert.
             $this->storeEvidence($existing, $payload['evidences']);
             $this->telegramAlertService->sendContextualAlert($existing->refresh());
 
             return ['status' => 'updated', 'notified' => true];
         }
 
+        // Brand-new condition, or resolved alert re-triggered — create + notify.
+    create_new:
         $alert = DB::transaction(function () use ($payload, $dedupeKey, $now): Alert {
             $alert = Alert::query()->create([
                 'device_id' => $payload['device_id'] ?? null,
