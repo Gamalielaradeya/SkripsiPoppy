@@ -166,14 +166,14 @@
             </dl>
         </x-info-panel>
 
-        <x-info-panel title="ZeroTier" description="Jaringan privat untuk komunikasi VPS dan klien Windows.">
+        <x-info-panel title="ZeroTier" description="Jaringan privat untuk komunikasi Server dan klien Windows.">
             <dl class="space-y-3 text-sm">
                 <div class="flex items-center justify-between gap-4">
                     <dt class="text-slate-500">Network ID</dt>
                     <dd class="font-mono text-xs font-medium text-slate-900">e4da7455b2b688af</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4">
-                    <dt class="text-slate-500">Interface VPS</dt>
+                    <dt class="text-slate-500">Interface Server</dt>
                     <dd class="font-mono text-xs font-medium text-slate-900">ztwfumfxi5</dd>
                 </div>
                 <div class="rounded-md bg-slate-50 p-3 text-xs text-slate-500">

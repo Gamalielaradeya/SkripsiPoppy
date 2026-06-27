@@ -274,7 +274,7 @@ class AlertDetectionService
                 $reason ?: '-',
             ),
             'impact' => 'Accurate pada device tersebut dapat gagal membuka atau memakai database Firebird.',
-            'recommended_action' => 'Cek koneksi ZeroTier device, firewall, target host/port Firebird, dan status VPS bila beberapa device ikut gagal.',
+            'recommended_action' => 'Cek koneksi ZeroTier device, firewall, target host/port Firebird, dan status Server bila beberapa device ikut gagal.',
             'evidences' => [
                 ['target_host', (string) $check->target_host, 'text', 'network_checks', $check->checked_at],
                 ['target_port', (string) $check->target_port, 'number', 'network_checks', $check->checked_at],
@@ -323,7 +323,7 @@ class AlertDetectionService
                 $check->target_port ?: '-',
             ),
             'impact' => 'Akses Accurate dari device tersebut dapat terasa lambat.',
-            'recommended_action' => 'Cek koneksi ZeroTier, kualitas jaringan device, dan status VPS.',
+            'recommended_action' => 'Cek koneksi ZeroTier, kualitas jaringan device, dan status Server.',
             'evidences' => [
                 ['target_host', (string) $check->target_host, 'text', 'network_checks', $check->checked_at],
                 ['target_port', (string) $check->target_port, 'number', 'network_checks', $check->checked_at],

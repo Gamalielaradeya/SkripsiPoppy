@@ -96,9 +96,9 @@
                                         \Carbon\Carbon::setLocale('en');
                                     @endphp
                                     @if ($incident->status === 'resolved' && $incident->resolved_at)
-                                        {{ $duration->diffForHumans($incident->resolved_at, ['parts' => 2]) }}
+                                        {{ $duration->diffForHumans($incident->resolved_at, ['parts' => 2, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]) }}
                                     @else
-                                        {{ $duration->diffForHumans(now(), ['parts' => 2]) }}
+                                        {{ $duration->diffForHumans(now(), ['parts' => 2, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]) }} ago
                                     @endif
                                     @php \Carbon\Carbon::setLocale('id'); @endphp
                                 @else

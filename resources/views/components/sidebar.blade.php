@@ -32,7 +32,7 @@
     <div class="flex h-full flex-col">
         <div class="border-b border-slate-800 px-5 py-5">
             <div class="text-sm font-semibold uppercase tracking-wide text-white">Centralized Monitor</div>
-            <div class="mt-1 text-xs text-slate-400">Accurate real-device cockpit</div>
+            <div class="mt-1 text-xs text-slate-400">Centralized Log Monitoring PT.XYZ</div>
         </div>
 
         <nav class="flex-1 space-y-1 px-3 py-4" aria-label="Primary navigation">

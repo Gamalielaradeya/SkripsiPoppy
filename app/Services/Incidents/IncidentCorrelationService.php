@@ -106,7 +106,7 @@ class IncidentCorrelationService
                 $sev,
                 "Koneksi Firebird bermasalah dari {$device->display_name}",
                 "{$device->display_name} gagal melakukan koneksi TCP ke server Firebird. Accurate tidak dapat mengakses database.",
-                'Cek koneksi ZeroTier, firewall, status VPS Firebird, dan pastikan port 3051 terbuka.',
+                'Cek koneksi ZeroTier, firewall, status Server Firebird, dan pastikan port 3051 terbuka.',
                 $fbConnAlerts
             );
         }
@@ -120,7 +120,7 @@ class IncidentCorrelationService
                 'warning',
                 "Latensi Firebird tinggi dari {$device->display_name}",
                 "Koneksi Firebird dari {$device->display_name} memiliki latensi di atas ambang batas. Akses Accurate dapat terasa lambat.",
-                'Periksa kualitas jaringan ZeroTier dan beban VPS Firebird.',
+                'Periksa kualitas jaringan ZeroTier dan beban Server Firebird.',
                 $fbLatAlerts
             );
         }

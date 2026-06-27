@@ -80,6 +80,15 @@ class SettingController extends Controller
                     'description' => 'Chat ID tujuan notifikasi (user/group/channel).',
                     'sensitive' => true,
                 ],
+                'recipient_name' => [
+                    'label' => 'Nama Penerima Telegram',
+                    'key' => 'TELEGRAM_RECIPIENT_NAME',
+                    'value' => (string) $cfg('telegram.recipient_name', 'Admin IT'),
+                    'type' => 'string',
+                    'group' => 'telegram',
+                    'description' => 'Nama deskriptif penerima notifikasi (misal: Admin IT, Tim Operasional).',
+                    'sensitive' => false,
+                ],
                 'telegram_cooldown' => [
                     'label' => 'Jeda Ulang Telegram (menit)',
                     'key' => 'TELEGRAM_ALERT_COOLDOWN_MINUTES',
