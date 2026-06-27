@@ -170,6 +170,10 @@ class IncidentCorrelationService
         string $recommendedAction,
         Collection $matchedAlerts,
     ): array {
+        $now = now();
+        $earliestAlertAt = $matchedAlerts->min('detected_at') ?: $now;
+        $latestAlertAt = $matchedAlerts->max('detected_at') ?: $now;
+
         $evidence = [];
         foreach ($matchedAlerts as $alert) {
             $evidence["alert_{$alert->id}"] = $alert->evidence_summary;
@@ -186,7 +190,7 @@ class IncidentCorrelationService
             'summary' => $summary,
             'evidence_json' => $evidence,
             'status' => 'open',
-            'detected_at' => now(),
+            'detected_at' => $earliestAlertAt,
             'alert_ids' => $matchedAlerts->pluck('id')->toArray(),
         ];
     }

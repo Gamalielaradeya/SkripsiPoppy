@@ -88,6 +88,20 @@
                             <dd class="text-right font-medium text-slate-900">{{ $incident->detected_at?->format('Y-m-d H:i:s') ?? '-' }}</dd>
                         </div>
                         <div class="flex items-start justify-between gap-4">
+                            <dt class="text-slate-500">Durasi</dt>
+                            <dd class="text-right font-medium text-slate-900">
+                                @if ($incident->detected_at)
+                                    @if ($incident->status === 'resolved' && $incident->resolved_at)
+                                        {{ $incident->detected_at->diffForHumans($incident->resolved_at, ['parts' => 2]) }}
+                                    @else
+                                        {{ $incident->detected_at->diffForHumans(now(), ['parts' => 2]) }} (berjalan)
+                                    @endif
+                                @else
+                                    -
+                                @endif
+                            </dd>
+                        </div>
+                        <div class="flex items-start justify-between gap-4">
                             <dt class="text-slate-500">Diakui Pada</dt>
                             <dd class="text-right font-medium text-slate-900">{{ $incident->acknowledged_at?->format('Y-m-d H:i:s') ?? 'Belum' }}</dd>
                         </div>
