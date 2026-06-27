@@ -119,4 +119,62 @@ class RemoteActionController extends Controller
     {
         return $device->ip_zerotier ?: $device->ip_local;
     }
+
+    private function pingTargetIp(Device $device): ?string
+    {
+        return $device->ip_zerotier ?: $device->ip_local;
+    }
+
+    public function storePingTest(Request $request, Device $device): RedirectResponse
+    {
+        $targetIp = $this->pingTargetIp($device);
+
+        if (! $targetIp) {
+            return back()->with('status', 'Ping tidak tersedia: perangkat tidak memiliki IP ZeroTier atau IP lokal.');
+        }
+
+        $commandOutput = '';
+        $success = false;
+        $rttMs = null;
+
+        exec(sprintf('ping -c 3 -W 2 %s 2>&1', escapeshellarg($targetIp)), $output, $exitCode);
+        $commandOutput = implode("\n", $output);
+
+        if ($exitCode === 0) {
+            $success = true;
+            // Coba ekstrak avg RTT
+            foreach ($output as $line) {
+                if (preg_match('/rtt\s+[a-z\/]+\s*=\s*[\d\.]+\/([\d\.]+)\//i', $line, $m)) {
+                    $rttMs = round((float) $m[1], 2);
+                    break;
+                }
+            }
+        }
+
+        $resultMessage = $success
+            ? 'Ping berhasil ke ' . $targetIp . ($rttMs !== null ? ' (avg RTT: ' . $rttMs . ' ms)' : '')
+            : 'Ping gagal ke ' . $targetIp;
+
+        $remoteAction = RemoteAction::query()->create([
+            'device_id' => $device->id,
+            'requested_by' => $request->user()->id,
+            'action_type' => RemoteAction::ACTION_PING_TEST,
+            'status' => $success ? RemoteAction::STATUS_SUCCEEDED : RemoteAction::STATUS_FAILED,
+            'reason' => 'Admin menjalankan ping test dari dashboard.',
+            'requires_confirmation' => false,
+            'payload' => [
+                'target_ip' => $targetIp,
+                'target_source' => $device->ip_zerotier ? 'ip_zerotier' : 'ip_local',
+                'ping_exit_code' => $exitCode,
+                'ping_rtt_ms' => $rttMs,
+                'ping_raw_output' => $commandOutput,
+            ],
+            'result_message' => $resultMessage,
+            'error_message' => $success ? null : ($output[0] ?? 'Timeout atau host unreachable.'),
+            'requested_at' => now(),
+            'completed_at' => now(),
+        ]);
+
+        return redirect()->route('remote-actions.show', $remoteAction);
+    }
 }

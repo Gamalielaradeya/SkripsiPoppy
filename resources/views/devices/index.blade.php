@@ -34,9 +34,9 @@
                 <span class="text-xs font-medium text-slate-600">Accurate</span>
                 <select name="accurate" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
                     <option value="">All process states</option>
-                    <option value="running" @selected(request('accurate') === 'running')>Running</option>
-                    <option value="not_running" @selected(request('accurate') === 'not_running')>Not Running</option>
-                    <option value="unknown" @selected(request('accurate') === 'unknown')>Unknown</option>
+                    <option value="running" @selected(request('accurate') === 'running')>Berjalan</option>
+                    <option value="not_running" @selected(request('accurate') === 'not_running')>Tidak Berjalan</option>
+                    <option value="unknown" @selected(request('accurate') === 'unknown')>Tidak Diketahui</option>
                 </select>
             </label>
             <div class="flex items-end gap-2">
@@ -113,6 +113,14 @@
                                             <a href="{{ route('devices.show', $device) }}#restart" class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">Restart</a>
                                         @else
                                             <x-action-button disabled variant="danger">Restart</x-action-button>
+                                        @endif
+                                        @if ($device->display_status === 'online' && ($device->ip_zerotier || $device->ip_local))
+                                            <form method="POST" action="{{ route('devices.remote-actions.ping', $device) }}" class="contents">
+                                                @csrf
+                                                <x-action-button type="submit" variant="ghost">Ping</x-action-button>
+                                            </form>
+                                        @else
+                                            <x-action-button disabled variant="ghost">Ping</x-action-button>
                                         @endif
                                     </div>
                                 </td>

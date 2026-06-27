@@ -122,7 +122,7 @@
                     @foreach ($latestAuditEvents as $event)
                         <a href="{{ route('accurate-audit.show', $event) }}" class="block rounded-md border border-slate-200 p-3 hover:bg-slate-50">
                             <div class="flex items-center justify-between gap-3">
-                                <div class="font-medium text-slate-950">{{ $event->accurate_username ?? 'Unknown Accurate User' }}</div>
+                                <div class="font-medium text-slate-950">{{ $event->accurate_username ?? 'Pengguna Accurate tidak dikenal' }}</div>
                                 <div class="text-xs text-slate-500">{{ $event->activity_time?->format('Y-m-d H:i') ?? '-' }}</div>
                             </div>
                             <div class="mt-1 text-sm text-slate-600">{{ $event->transaction_description ?? $event->source ?? '-' }}</div>

@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/devices/{id}', [DeviceController::class, 'show'])->name('devices.show');
     Route::post('/devices/{device}/remote-actions/rdp', [RemoteActionController::class, 'storeRdp'])->name('devices.remote-actions.rdp');
     Route::post('/devices/{device}/remote-actions/restart', [RemoteActionController::class, 'storeRestart'])->name('devices.remote-actions.restart');
+    Route::post('/devices/{device}/remote-actions/ping', [RemoteActionController::class, 'storePingTest'])->name('devices.remote-actions.ping');
 
     Route::get('/accurate-audit', [AccurateAuditController::class, 'index'])->name('accurate-audit.index');
     Route::get('/accurate-audit/{id}', [AccurateAuditController::class, 'show'])->name('accurate-audit.show');

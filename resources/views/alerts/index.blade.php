@@ -31,7 +31,7 @@
                 </label>
                 <label class="block">
                     <span class="text-xs font-medium text-slate-600">Keyword</span>
-                    <input name="keyword" value="{{ request('keyword') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Evidence or rule">
+                    <input name="keyword" value="{{ request('keyword') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Judul, ringkasan, atau aturan">
                 </label>
                 <div class="flex items-end gap-2">
                     <x-action-button class="w-full">Apply Filter</x-action-button>
