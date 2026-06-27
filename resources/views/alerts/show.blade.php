@@ -51,51 +51,51 @@
                     <div class="text-xs text-slate-500">{{ $alert->target_type }} / {{ $alert->target_id ?: '-' }}</div>
                 </div>
                 <div>
-                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Terdeteksi Oleh</div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Detected By</div>
                     <div class="mt-1 font-medium text-slate-950">{{ $alert->detected_by }}</div>
                     <div class="text-xs text-slate-500">{{ $alert->source ?: '-' }}</div>
                 </div>
                 <div>
-                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Aturan</div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Rule</div>
                     <div class="mt-1 font-medium text-slate-950">{{ $alert->alert_code }}</div>
                     <div class="text-xs text-slate-500">{{ $alert->category }}</div>
                 </div>
                 <div>
-                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Riwayat</div>
-                    <div class="mt-1 text-slate-700">Pertama: {{ $alert->first_detected_at?->format('Y-m-d H:i:s') ?? '-' }}</div>
-                    <div class="text-xs text-slate-500">Terakhir: {{ $alert->last_detected_at?->format('Y-m-d H:i:s') ?? '-' }}</div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Timeline</div>
+                    <div class="mt-1 text-slate-700">First: {{ $alert->first_detected_at?->format('Y-m-d H:i:s') ?? '-' }}</div>
+                    <div class="text-xs text-slate-500">Last: {{ $alert->last_detected_at?->format('Y-m-d H:i:s') ?? '-' }}</div>
                 </div>
             </div>
         </section>
 
         <section class="grid gap-5 lg:grid-cols-2">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Ringkasan Bukti</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Evidence Summary</h3>
                 <p class="mt-3 text-sm leading-6 text-slate-700">{{ $alert->evidence_summary ?: '-' }}</p>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Dampak</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Impact</h3>
                 <p class="mt-3 text-sm leading-6 text-slate-700">{{ $alert->impact }}</p>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Tindakan yang Disarankan</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Recommended Action</h3>
                 <p class="mt-3 text-sm leading-6 text-slate-700">{{ $alert->recommended_action }}</p>
             </div>
         </section>
 
         <section>
             <div class="mb-3 flex items-center justify-between">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Baris Bukti</h3>
-                <span class="text-xs text-slate-500">{{ $alert->evidences->count() }} baris</span>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Evidence Rows</h3>
+                <span class="text-xs text-slate-500">{{ $alert->evidences->count() }} row(s)</span>
             </div>
             <x-data-table>
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kunci</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Nilai</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Tipe</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Sumber</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Diukur Pada</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Key</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Value</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Type</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Source</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Measured At</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
@@ -109,7 +109,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">Tidak ada bukti tersimpan.</td>
+                            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">No evidence rows stored.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -118,17 +118,17 @@
 
         <section>
             <div class="mb-3 flex items-center justify-between">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Riwayat Notifikasi</h3>
-                <span class="text-xs text-slate-500">{{ $alert->notifications->count() }} percobaan</span>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Notification History</h3>
+                <span class="text-xs text-slate-500">{{ $alert->notifications->count() }} attempt(s)</span>
             </div>
             <x-data-table>
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kanal</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Channel</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Penerima</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Dikirim Pada</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kesalahan</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Recipient</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Sent At</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Error</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
@@ -142,7 +142,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">Tidak ada percobaan notifikasi tercatat.</td>
+                            <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">No notification attempts recorded.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -151,30 +151,30 @@
 
         <section class="grid gap-5 lg:grid-cols-3">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Perangkat Terkait</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Related Device</h3>
                 @if ($alert->device)
                     <a href="{{ route('devices.show', $alert->device) }}" class="mt-3 block font-medium text-sky-700 hover:text-sky-800">{{ $alert->device->display_name }}</a>
                     <div class="mt-1 text-sm text-slate-600">{{ $alert->device->hostname }} / {{ $alert->device->windows_user ?: '-' }}</div>
                 @else
-                    <p class="mt-3 text-sm text-slate-500">Tidak ada relasi perangkat.</p>
+                    <p class="mt-3 text-sm text-slate-500">No device associated.</p>
                 @endif
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Audit Accurate Terkait</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Related Audit</h3>
                 @if ($alert->accurateAuditEvent)
                     <a href="{{ route('accurate-audit.show', $alert->accurateAuditEvent) }}" class="mt-3 block font-medium text-sky-700 hover:text-sky-800">Audit #{{ $alert->accurateAuditEvent->accurate_audit_id }}</a>
                     <div class="mt-1 text-sm text-slate-600">{{ $alert->accurateAuditEvent->transaction_type ?: '-' }} / {{ $alert->accurateAuditEvent->accurate_username ?: '-' }}</div>
                 @else
-                    <p class="mt-3 text-sm text-slate-500">Tidak ada relasi audit Accurate.</p>
+                    <p class="mt-3 text-sm text-slate-500">No audit event associated.</p>
                 @endif
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Log Terkait</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Related Log</h3>
                 @if ($alert->log)
                     <a href="{{ route('advanced-logs.show', $alert->log) }}" class="mt-3 block font-medium text-sky-700 hover:text-sky-800">Log #{{ $alert->log->id }}</a>
                     <div class="mt-1 text-sm text-slate-600">{{ $alert->log->source ?: '-' }} / {{ $alert->log->event_type ?: '-' }}</div>
                 @else
-                    <p class="mt-3 text-sm text-slate-500">Tidak ada relasi log mentah.</p>
+                    <p class="mt-3 text-sm text-slate-500">No raw log associated.</p>
                 @endif
             </div>
         </section>
