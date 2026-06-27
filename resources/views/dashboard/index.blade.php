@@ -69,7 +69,6 @@
                                     <td class="px-3 py-3 font-mono text-xs">{{ $device->ip_zerotier ?? '-' }}</td>
                                     <td class="px-3 py-3">
                                         <x-status-badge :status="$networkStatus" />
-                                        <div class="mt-1 text-xs text-slate-500">{{ $networkLatency !== null ? number_format($networkLatency, 0).' ms' : '-' }}</div>
                                     </td>
                                     <td class="px-3 py-3"><x-status-badge :status="$accurateProcessStatus" /></td>
                                     <td class="px-3 py-3"><x-status-badge :status="$device->display_status" /></td>
