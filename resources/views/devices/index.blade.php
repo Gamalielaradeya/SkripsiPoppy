@@ -8,7 +8,7 @@
         <form method="GET" action="{{ route('devices.index') }}" class="grid gap-3 md:grid-cols-5">
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Search</span>
-                <x-autocomplete-input name="search" :value="request('search')" placeholder="Label, hostname, user, IP" :endpoint="route('search.devices')" label="Search" />
+                <input name="search" value="{{ request('search') }}" class="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700" placeholder="Label, hostname, user, IP">
             </label>
             <label class="block">
                 <span class="text-xs font-medium text-slate-600">Status</span>
