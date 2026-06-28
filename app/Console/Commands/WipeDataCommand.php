@@ -14,6 +14,9 @@ use App\Models\LogEntry;
 use App\Models\NetworkCheck;
 use App\Models\RemoteAction;
 use App\Models\AccurateAuditSyncRun;
+use App\Models\AccurateAuditSyncState;
+use App\Models\ParserOffset;
+use App\Models\ParserRun;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -42,6 +45,9 @@ class WipeDataCommand extends Command
             'Log Entries' => LogEntry::query()->count(),
             'Remote Actions' => RemoteAction::query()->count(),
             'Audit Sync Runs' => AccurateAuditSyncRun::query()->count(),
+            'Audit Sync States' => AccurateAuditSyncState::query()->count(),
+            'Parser Offsets' => ParserOffset::query()->count(),
+            'Parser Runs' => ParserRun::query()->count(),
         ];
 
         AlertEvidence::query()->delete();
@@ -52,6 +58,9 @@ class WipeDataCommand extends Command
         LogEntry::query()->delete();
         RemoteAction::query()->delete();
         AccurateAuditSyncRun::query()->delete();
+        AccurateAuditSyncState::query()->delete();
+        ParserOffset::query()->delete();
+        ParserRun::query()->delete();
 
         DB::table('incident_alerts')->delete();
         Incident::query()->delete();
