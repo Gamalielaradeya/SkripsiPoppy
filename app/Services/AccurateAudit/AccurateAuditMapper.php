@@ -83,7 +83,7 @@ class AccurateAuditMapper
         }
 
         try {
-            return Carbon::parse($value);
+            return Carbon::parse($value, 'UTC')->setTimezone(config('app.timezone'));
         } catch (\Throwable) {
             throw new AccurateAuditReaderException('Firebird audit row has invalid ACTIVITY_TIME.');
         }
